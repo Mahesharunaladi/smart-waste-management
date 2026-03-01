@@ -3,8 +3,8 @@ const trucksData = [
     {
         id: 'TRUCK-001',
         status: 'active',
-        driver: 'John Smith',
-        location: [17.3850, 78.4867],
+        driver: 'Mallanna',
+        location: [12.9716, 77.5946],
         capacity: 75,
         route: 'Zone A',
         lastCollection: '10 mins ago'
@@ -12,8 +12,8 @@ const trucksData = [
     {
         id: 'TRUCK-002',
         status: 'active',
-        driver: 'Sarah Johnson',
-        location: [17.3900, 78.4900],
+        driver: 'Ramesh',
+        location: [12.9750, 77.6000],
         capacity: 60,
         route: 'Zone B',
         lastCollection: '5 mins ago'
@@ -21,8 +21,8 @@ const trucksData = [
     {
         id: 'TRUCK-003',
         status: 'idle',
-        driver: 'Mike Wilson',
-        location: [17.3800, 78.4850],
+        driver: 'Manjunath',
+        location: [12.9680, 77.5900],
         capacity: 20,
         route: 'Zone C',
         lastCollection: '45 mins ago'
@@ -30,8 +30,8 @@ const trucksData = [
     {
         id: 'TRUCK-004',
         status: 'active',
-        driver: 'Emily Davis',
-        location: [17.3920, 78.4920],
+        driver: 'Rakesh',
+        location: [12.9780, 77.6050],
         capacity: 85,
         route: 'Zone D',
         lastCollection: '2 mins ago'
@@ -39,8 +39,8 @@ const trucksData = [
     {
         id: 'TRUCK-005',
         status: 'active',
-        driver: 'David Brown',
-        location: [17.3870, 78.4880],
+        driver: 'Durga parsad',
+        location: [12.9730, 77.5980],
         capacity: 45,
         route: 'Zone A',
         lastCollection: '15 mins ago'
@@ -217,8 +217,8 @@ let truckMarkers = [];
 let selectedTruck = null;
 
 function initMap() {
-    // Initialize map centered on Hyderabad
-    map = L.map('map').setView([17.3850, 78.4867], 13);
+    // Initialize map centered on Bengaluru
+    map = L.map('map').setView([12.9716, 77.5946], 13);
 
     // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -230,11 +230,11 @@ function initMap() {
 
     // Add household markers (sample locations)
     const householdLocations = [
-        [17.3860, 78.4877],
-        [17.3890, 78.4890],
-        [17.3810, 78.4860],
-        [17.3930, 78.4930],
-        [17.3880, 78.4870]
+        [12.9720, 77.5960],
+        [12.9760, 77.5980],
+        [12.9690, 77.5920],
+        [12.9790, 77.6040],
+        [12.9740, 77.5970]
     ];
 
     householdLocations.forEach((location, index) => {

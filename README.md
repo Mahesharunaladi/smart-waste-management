@@ -223,4 +223,3 @@ For support, email your contact or create an issue in the repository.
 
 ---
 
-**Made with ❤️ for a cleaner, smarter future**

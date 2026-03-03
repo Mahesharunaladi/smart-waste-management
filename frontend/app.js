@@ -39,7 +39,7 @@ const trucksData = [
     {
         id: 'TRUCK-005',
         status: 'active',
-        driver: 'Durga parsad',
+        driver: 'Durga Prasad',
         location: [12.9730, 77.5980],
         capacity: 45,
         route: 'Zone A',

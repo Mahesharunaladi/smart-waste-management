@@ -426,7 +426,7 @@
 
                     // Redirect to dashboard
                     setTimeout(() => {
-                        window.location.href = 'index.html';
+                        window.location.href = 'frontend/dashboard.html';
                     }, 1500);
                 } else {
                     showAlert(data.message || 'Login failed. Please check your credentials.');
@@ -455,7 +455,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        window.location.href = 'index.html';
+                        window.location.href = 'frontend/dashboard.html';
                     }
                 })
                 .catch(() => {

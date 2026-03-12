@@ -312,13 +312,20 @@ function renderTrucks() {
             <div class="truck-header">
                 <div class="truck-name">
                     <i class="fas fa-truck"></i>
-                    ${truck.name}
+                    ${truck.name} - ${truck.truckNumber}
                 </div>
                 <span class="status-badge ${truck.status}">${truck.status.toUpperCase()}</span>
             </div>
             <div class="truck-details">
-                <span><i class="fas fa-weight"></i> ${truck.wasteCollected} kg</span>
-                <span><i class="fas fa-map-marker-alt"></i> ${truck.currentColony}</span>
+                <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem;">
+                    <span style="font-size: 0.85rem;"><i class="fas fa-id-card"></i> <strong>Registration:</strong> ${truck.registrationNumber}</span>
+                    <span style="font-size: 0.85rem;"><i class="fas fa-user"></i> <strong>Driver:</strong> ${truck.driver}</span>
+                    <span style="font-size: 0.85rem;"><i class="fas fa-phone"></i> <strong>Phone:</strong> ${truck.driverPhone}</span>
+                </div>
+                <div style="margin-top: 0.5rem; display: flex; gap: 1rem; padding-top: 0.5rem; border-top: 1px solid #e5e7eb;">
+                    <span><i class="fas fa-weight"></i> ${truck.wasteCollected} kg</span>
+                    <span><i class="fas fa-map-marker-alt"></i> ${truck.currentColony}</span>
+                </div>
             </div>
         </div>
     `).join('');

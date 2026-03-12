@@ -3,204 +3,619 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Waste Management System</title>
+    <title>Smart Waste Management - Professional Waste Solutions</title>
+    <meta name="description" content="Leading smart waste management system with real-time tracking, analytics, and sustainable solutions for a cleaner tomorrow.">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
 </head>
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar">
+    <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo">
                 <i class="fas fa-recycle"></i>
-                <span>Smart Waste Management</span>
+                <span>SmartWaste</span>
             </div>
-            <ul class="nav-menu">
-                <li><a href="#dashboard" class="nav-link active">Dashboard</a></li>
-                <li><a href="#truck-tracking" class="nav-link">Truck Tracking</a></li>
-                <li><a href="#households" class="nav-link">Households</a></li>
-                <li><a href="#analytics" class="nav-link">Analytics</a></li>
+            <div class="hamburger" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#home" class="nav-link active" onclick="closeMobileMenu()">Home</a></li>
+                <li><a href="#about" class="nav-link" onclick="closeMobileMenu()">About</a></li>
+                <li><a href="#features" class="nav-link" onclick="closeMobileMenu()">Features</a></li>
+                <li><a href="#services" class="nav-link" onclick="closeMobileMenu()">Services</a></li>
+                <li><a href="#how-it-works" class="nav-link" onclick="closeMobileMenu()">How It Works</a></li>
+                <li><a href="#testimonials" class="nav-link" onclick="closeMobileMenu()">Testimonials</a></li>
+                <li><a href="#contact" class="nav-link" onclick="closeMobileMenu()">Contact</a></li>
+                <li><a href="login.html" class="btn-login" onclick="closeMobileMenu()">Login</a></li>
             </ul>
-            <div class="user-profile">
-                <i class="fas fa-user-circle"></i>
-                <span>Admin</span>
-            </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Dashboard Section -->
-        <section id="dashboard" class="section active">
-            <h1 class="section-title">Dashboard Overview</h1>
-            
-            <!-- Statistics Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon truck">
-                        <i class="fas fa-truck"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Active Trucks</h3>
-                        <p class="stat-number">5</p>
-                        <span class="stat-change positive">+2 Today</span>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon waste">
-                        <i class="fas fa-trash-alt"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Waste Collected</h3>
-                        <p class="stat-number">1,847 kg</p>
-                        <span class="stat-change positive">+12% Today</span>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon household">
-                        <i class="fas fa-home"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Total Households</h3>
-                        <p class="stat-number">342</p>
-                        <span class="stat-change">In Colony</span>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon collection">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Collections Today</h3>
-                        <p class="stat-number">156</p>
-                        <span class="stat-change positive">45% Complete</span>
-                    </div>
-                </div>
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content" data-aos="fade-up">
+            <h1 class="hero-title">Smart Waste Management for a <span class="highlight">Sustainable Future</span></h1>
+            <p class="hero-subtitle">Revolutionary IoT-powered waste collection system with real-time tracking, intelligent routing, and comprehensive analytics</p>
+            <div class="hero-buttons">
+                <a href="#features" class="btn btn-primary">Explore Features</a>
+                <a href="#contact" class="btn btn-secondary">Get Started</a>
             </div>
-
-            <!-- Quick Actions -->
-            <div class="quick-actions">
-                <button class="action-btn" onclick="showSection('truck-tracking')">
-                    <i class="fas fa-map-marked-alt"></i>
-                    Track Trucks
-                </button>
-                <button class="action-btn" onclick="showSection('households')">
-                    <i class="fas fa-users"></i>
-                    View Households
-                </button>
-                <button class="action-btn" onclick="generateReport()">
-                    <i class="fas fa-file-download"></i>
-                    Generate Report
-                </button>
-            </div>
-
-            <!-- Recent Activity -->
-            <div class="activity-section">
-                <h2>Recent Activity</h2>
-                <div class="activity-list" id="activityList">
-                    <!-- Activity items will be populated by JavaScript -->
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <h3>500+</h3>
+                    <p>Active Vehicles</p>
                 </div>
-            </div>
-        </section>
-
-        <!-- Truck Tracking Section -->
-        <section id="truck-tracking" class="section">
-            <h1 class="section-title">Real-Time Truck Tracking</h1>
-            
-            <div class="tracking-container">
-                <div class="truck-list">
-                    <h2>Active Trucks</h2>
-                    <div class="truck-filters">
-                        <button class="filter-btn active" onclick="filterTrucks('all')">All</button>
-                        <button class="filter-btn" onclick="filterTrucks('active')">Active</button>
-                        <button class="filter-btn" onclick="filterTrucks('idle')">Idle</button>
-                    </div>
-                    <div id="truckListContainer">
-                        <!-- Truck items will be populated by JavaScript -->
-                    </div>
+                <div class="hero-stat">
+                    <h3>50K+</h3>
+                    <p>Households Served</p>
                 </div>
-                
-                <div class="map-container">
-                    <div id="map"></div>
-                    <div class="map-legend">
-                        <h3>Legend</h3>
-                        <div class="legend-item">
-                            <span class="legend-icon truck-icon"></span>
-                            <span>Garbage Truck</span>
-                        </div>
-                        <div class="legend-item">
-                            <span class="legend-icon household-icon"></span>
-                            <span>Household</span>
-                        </div>
-                    </div>
+                <div class="hero-stat">
+                    <h3>98%</h3>
+                    <p>Customer Satisfaction</p>
                 </div>
-            </div>
-        </section>
-
-        <!-- Households Section -->
-        <section id="households" class="section">
-            <h1 class="section-title">Household Management</h1>
-            
-            <div class="household-controls">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchHousehold" placeholder="Search by house number or name..." onkeyup="searchHouseholds()">
+                <div class="hero-stat">
+                    <h3>24/7</h3>
+                    <p>Support Available</p>
                 </div>
-                <select id="filterStatus" onchange="filterHouseholds()">
-                    <option value="all">All Status</option>
-                    <option value="compliant">Compliant</option>
-                    <option value="pending">Pending</option>
-                    <option value="missed">Missed</option>
-                </select>
-            </div>
-
-            <div class="households-grid" id="householdsGrid">
-                <!-- Household cards will be populated by JavaScript -->
-            </div>
-        </section>
-
-        <!-- Analytics Section -->
-        <section id="analytics" class="section">
-            <h1 class="section-title">Analytics & Reports</h1>
-            
-            <div class="analytics-grid">
-                <div class="chart-container">
-                    <h2>Waste Collection Trends</h2>
-                    <canvas id="wasteChart"></canvas>
-                </div>
-                
-                <div class="chart-container">
-                    <h2>Household Compliance Rate</h2>
-                    <canvas id="complianceChart"></canvas>
-                </div>
-            </div>
-
-            <div class="leaderboard">
-                <h2>Top Contributing Households</h2>
-                <div id="leaderboardList">
-                    <!-- Leaderboard items will be populated by JavaScript -->
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Household Details Modal -->
-    <div id="householdModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <div id="modalBody">
-                <!-- Modal content will be populated by JavaScript -->
             </div>
         </div>
-    </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">About Us</span>
+                <h2 class="section-title">Leading the Way in Smart Waste Solutions</h2>
+                <p class="section-description">Transforming waste management through technology, innovation, and sustainable practices</p>
+            </div>
+            
+            <div class="about-content">
+                <div class="about-image" data-aos="fade-right">
+                    <img src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=800" alt="Waste Management">
+                    <div class="about-badge">
+                        <i class="fas fa-award"></i>
+                        <span>10+ Years of Excellence</span>
+                    </div>
+                </div>
+                
+                <div class="about-text" data-aos="fade-left">
+                    <h3>Revolutionizing Waste Management Since 2016</h3>
+                    <p>We are a pioneering company committed to transforming the waste management industry through cutting-edge technology and sustainable practices. Our smart waste management system leverages IoT sensors, AI-powered analytics, and real-time tracking to optimize collection routes, reduce environmental impact, and enhance operational efficiency.</p>
+                    
+                    <div class="about-highlights">
+                        <div class="highlight-item">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <h4>ISO Certified</h4>
+                                <p>International quality standards compliance</p>
+                            </div>
+                        </div>
+                        <div class="highlight-item">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <h4>Green Technology</h4>
+                                <p>Eco-friendly solutions for sustainable future</p>
+                            </div>
+                        </div>
+                        <div class="highlight-item">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <h4>Expert Team</h4>
+                                <p>100+ professionals dedicated to excellence</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="about-mission">
+                        <div class="mission-item">
+                            <h4><i class="fas fa-bullseye"></i> Our Mission</h4>
+                            <p>To revolutionize waste management by providing innovative, technology-driven solutions that promote sustainability and improve quality of life for communities worldwide.</p>
+                        </div>
+                        <div class="mission-item">
+                            <h4><i class="fas fa-eye"></i> Our Vision</h4>
+                            <p>To become the global leader in smart waste management, creating cleaner, healthier, and more sustainable cities through advanced technology and environmental stewardship.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Features</span>
+                <h2 class="section-title">Powerful Features for Efficient Waste Management</h2>
+                <p class="section-description">Everything you need to manage waste collection efficiently and sustainably</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h3>Real-Time GPS Tracking</h3>
+                    <p>Monitor your entire fleet in real-time with live GPS tracking. Know exactly where each vehicle is at any moment.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Live vehicle locations</li>
+                        <li><i class="fas fa-check"></i> Route optimization</li>
+                        <li><i class="fas fa-check"></i> Geofencing alerts</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Advanced Analytics</h3>
+                    <p>Gain valuable insights with comprehensive analytics and reporting tools powered by AI and machine learning.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Performance metrics</li>
+                        <li><i class="fas fa-check"></i> Predictive analytics</li>
+                        <li><i class="fas fa-check"></i> Custom reports</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-icon">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <h3>Smart Route Planning</h3>
+                    <p>AI-powered route optimization reduces fuel costs, saves time, and minimizes environmental impact.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Automated scheduling</li>
+                        <li><i class="fas fa-check"></i> Traffic integration</li>
+                        <li><i class="fas fa-check"></i> Cost optimization</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Instant Notifications</h3>
+                    <p>Stay informed with real-time alerts for collections, delays, and important updates via SMS, email, or app.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Collection reminders</li>
+                        <li><i class="fas fa-check"></i> Schedule updates</li>
+                        <li><i class="fas fa-check"></i> Emergency alerts</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Mobile Application</h3>
+                    <p>Manage everything on-the-go with our intuitive mobile apps for iOS and Android devices.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> User-friendly interface</li>
+                        <li><i class="fas fa-check"></i> Offline mode</li>
+                        <li><i class="fas fa-check"></i> Push notifications</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3>Sustainability Tracking</h3>
+                    <p>Monitor and reduce your carbon footprint with detailed environmental impact reports and green initiatives.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Carbon emissions</li>
+                        <li><i class="fas fa-check"></i> Recycling rates</li>
+                        <li><i class="fas fa-check"></i> Green metrics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Our Services</span>
+                <h2 class="section-title">Comprehensive Waste Management Solutions</h2>
+                <p class="section-description">Tailored services to meet all your waste management needs</p>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="service-number">01</div>
+                    <i class="fas fa-trash-alt service-icon"></i>
+                    <h3>Residential Collection</h3>
+                    <p>Regular and reliable waste collection services for residential communities with flexible scheduling options.</p>
+                    <a href="#contact" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="service-card" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="service-number">02</div>
+                    <i class="fas fa-building service-icon"></i>
+                    <h3>Commercial Solutions</h3>
+                    <p>Customized waste management solutions for businesses, offices, and commercial establishments of all sizes.</p>
+                    <a href="#contact" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="service-card" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="service-number">03</div>
+                    <i class="fas fa-recycle service-icon"></i>
+                    <h3>Recycling Programs</h3>
+                    <p>Comprehensive recycling services to help reduce waste and promote environmental sustainability.</p>
+                    <a href="#contact" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="service-card" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="service-number">04</div>
+                    <i class="fas fa-industry service-icon"></i>
+                    <h3>Industrial Waste</h3>
+                    <p>Specialized handling and disposal of industrial waste with compliance to all safety and environmental regulations.</p>
+                    <a href="#contact" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="service-card" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="service-number">05</div>
+                    <i class="fas fa-hospital service-icon"></i>
+                    <h3>Medical Waste</h3>
+                    <p>Safe and compliant disposal of medical waste following all healthcare industry standards and regulations.</p>
+                    <a href="#contact" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="service-card" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="service-number">06</div>
+                    <i class="fas fa-cogs service-icon"></i>
+                    <h3>Consulting Services</h3>
+                    <p>Expert consulting to optimize your waste management processes and implement sustainable practices.</p>
+                    <a href="#contact" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Process</span>
+                <h2 class="section-title">How Our System Works</h2>
+                <p class="section-description">Simple, efficient, and completely automated</p>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item" data-aos="fade-right">
+                    <div class="timeline-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h3>Step 1: Sign Up</h3>
+                        <p>Create your account and set up your profile with your location and preferences. Our team will guide you through the onboarding process.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-aos="fade-left">
+                    <div class="timeline-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h3>Step 2: Schedule Collection</h3>
+                        <p>Choose your collection schedule based on your needs. Our system automatically optimizes routes for efficiency.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-aos="fade-right">
+                    <div class="timeline-icon">
+                        <i class="fas fa-truck-loading"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h3>Step 3: Smart Collection</h3>
+                        <p>Our trucks arrive on time with real-time tracking. Receive notifications before and after collection.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-aos="fade-left">
+                    <div class="timeline-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h3>Step 4: Track & Analyze</h3>
+                        <p>Monitor your waste management data, track environmental impact, and access detailed analytics through your dashboard.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-banner">
+        <div class="container">
+            <div class="stats-row">
+                <div class="stat-item" data-aos="zoom-in" data-aos-delay="100">
+                    <i class="fas fa-users"></i>
+                    <h3 class="counter" data-target="50000">0</h3>
+                    <p>Happy Customers</p>
+                </div>
+                <div class="stat-item" data-aos="zoom-in" data-aos-delay="200">
+                    <i class="fas fa-truck"></i>
+                    <h3 class="counter" data-target="500">0</h3>
+                    <p>Active Vehicles</p>
+                </div>
+                <div class="stat-item" data-aos="zoom-in" data-aos-delay="300">
+                    <i class="fas fa-city"></i>
+                    <h3 class="counter" data-target="150">0</h3>
+                    <p>Cities Covered</p>
+                </div>
+                <div class="stat-item" data-aos="zoom-in" data-aos-delay="400">
+                    <i class="fas fa-leaf"></i>
+                    <h3 class="counter" data-target="1000000">0</h3>
+                    <p>Tons Recycled</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Testimonials</span>
+                <h2 class="section-title">What Our Clients Say</h2>
+                <p class="section-description">Hear from businesses and communities we've helped</p>
+            </div>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"SmartWaste has completely transformed how we manage waste in our community. The real-time tracking and automated notifications have made everything so much easier. Highly recommended!"</p>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Johnson">
+                        <div>
+                            <h4>Sarah Johnson</h4>
+                            <p>Community Manager, Greenville</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"The analytics dashboard provides incredible insights into our waste management operations. We've reduced costs by 30% and improved our environmental impact significantly."</p>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Michael Chen">
+                        <div>
+                            <h4>Michael Chen</h4>
+                            <p>Operations Director, TechCorp Inc.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"Exceptional service and innovative technology. The mobile app is user-friendly, and the customer support team is always responsive. Best decision we've made for our facility."</p>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Emily Rodriguez">
+                        <div>
+                            <h4>Emily Rodriguez</h4>
+                            <p>Facility Manager, Metro Hospital</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content" data-aos="zoom-in">
+                <h2>Ready to Transform Your Waste Management?</h2>
+                <p>Join thousands of satisfied customers who are making a difference with SmartWaste</p>
+                <div class="cta-buttons">
+                    <a href="#contact" class="btn btn-light">Get Started Today</a>
+                    <a href="#features" class="btn btn-outline">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-tag">Contact Us</span>
+                <h2 class="section-title">Get in Touch</h2>
+                <p class="section-description">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+            </div>
+
+            <div class="contact-container">
+                <div class="contact-info" data-aos="fade-right">
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h4>Our Office</h4>
+                            <p>123 Green Street, Suite 100<br>Eco City, EC 12345</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>Phone</h4>
+                            <p>+1 (555) 123-4567<br>Mon-Fri 8AM-8PM</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>Email</h4>
+                            <p>info@smartwaste.com<br>support@smartwaste.com</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-social">
+                        <h4>Follow Us</h4>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-facebook"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <form class="contact-form" data-aos="fade-left" onsubmit="handleContactSubmit(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <select id="subject" name="subject" required>
+                                <option value="">Select a subject</option>
+                                <option value="general">General Inquiry</option>
+                                <option value="quote">Request a Quote</option>
+                                <option value="support">Technical Support</option>
+                                <option value="partnership">Partnership</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <div class="footer-logo">
+                        <i class="fas fa-recycle"></i>
+                        <span>SmartWaste</span>
+                    </div>
+                    <p>Leading the way in smart waste management solutions for a sustainable future. Making cities cleaner, one collection at a time.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#">Residential Collection</a></li>
+                        <li><a href="#">Commercial Solutions</a></li>
+                        <li><a href="#">Recycling Programs</a></li>
+                        <li><a href="#">Industrial Waste</a></li>
+                        <li><a href="#">Consulting</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Case Studies</a></li>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Newsletter</h4>
+                    <p>Subscribe to get updates on our latest features and news.</p>
+                    <form class="newsletter-form" onsubmit="handleNewsletterSubmit(event)">
+                        <input type="email" placeholder="Your email" required>
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                    <div class="footer-certifications">
+                        <img src="https://via.placeholder.com/60x40/10b981/ffffff?text=ISO" alt="ISO Certified">
+                        <img src="https://via.placeholder.com/60x40/10b981/ffffff?text=GREEN" alt="Green Certified">
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 SmartWaste Management. All rights reserved.</p>
+                <p>Designed with <i class="fas fa-heart"></i> for a cleaner planet</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
 
     <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

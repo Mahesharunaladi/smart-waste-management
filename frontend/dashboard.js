@@ -219,7 +219,10 @@ function addTruckMarker(truck) {
         .bindPopup(`
             <div class="popup-content">
                 <h4>${truck.name} - ${truck.status.toUpperCase()}</h4>
+                <p><strong>Truck Number:</strong> ${truck.truckNumber}</p>
+                <p><strong>Registration:</strong> ${truck.registrationNumber}</p>
                 <p><strong>Driver:</strong> ${truck.driver}</p>
+                <p><strong>Driver Phone:</strong> ${truck.driverPhone}</p>
                 <p><strong>Location:</strong> ${truck.currentColony}</p>
                 <p><strong>Waste Collected:</strong> ${truck.wasteCollected} kg</p>
             </div>

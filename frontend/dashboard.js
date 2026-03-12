@@ -50,7 +50,7 @@ const trucksData = [
         location: [12.2958, 76.6394],
         wasteCollected: 0,
         currentColony: 'Depot',
-        driver: 'Mahesh Kumar',
+        driver: 'Yallappa',
         driverPhone: '9876543212'
     },
     {
@@ -308,10 +308,11 @@ function animateCounter(elementId, target) {
 }
 
 // Render trucks list
+// Render trucks list
 function renderTrucks() {
     const truckList = document.getElementById('truckList');
     truckList.innerHTML = trucksData.map(truck => `
-        <div class="truck-item" onclick="focusTruck('${truck.id}')">
+        <div class="truck-item" onclick="focusTruck('${truck.id}')" title="Click to view on map">
             <div class="truck-header">
                 <div class="truck-name">
                     <i class="fas fa-truck"></i>
@@ -332,6 +333,7 @@ function renderTrucks() {
             </div>
         </div>
     `).join('');
+    console.log('Trucks rendered:', trucksData.length);
 }
 
 // Render colonies list
@@ -374,19 +376,37 @@ function renderActivities() {
     `).join('');
 }
 
-// Focus on truck
-function focusTruck(truckId) {
+// Focus on truck - Make it globally accessible
+window.focusTruck = function(truckId) {
+    console.log('Focusing on truck:', truckId);
+    console.log('Map initialized:', !!map);
+    console.log('Markers available:', markers.trucks.length);
+    
+    if (!map) {
+        console.error('Map not initialized yet!');
+        return;
+    }
+    
     const truckMarker = markers.trucks.find(m => m.id === truckId);
     if (truckMarker) {
+        console.log('Found truck marker, zooming to location');
         map.setView(truckMarker.data.location, 15);
         truckMarker.marker.openPopup();
+    } else {
+        console.error('Truck marker not found for ID:', truckId);
+        console.log('Available truck IDs:', markers.trucks.map(m => m.id));
     }
 }
 
 // Show colony details in modal
-function showColonyDetails(colonyId) {
+// Show colony details in modal - Make it globally accessible
+window.showColonyDetails = function(colonyId) {
+    console.log('Showing colony details for:', colonyId);
     const colony = coloniesData.find(c => c.id === colonyId);
-    if (!colony) return;
+    if (!colony) {
+        console.error('Colony not found:', colonyId);
+        return;
+    }
     
     const modal = document.getElementById('householdModal');
     const modalTitle = document.getElementById('modalTitle');
@@ -437,21 +457,24 @@ function showColonyDetails(colonyId) {
     `;
     
     modal.classList.add('active');
+    console.log('Modal opened successfully');
 }
 
-// Close modal
-function closeModal() {
+// Close modal - Make it globally accessible
+window.closeModal = function() {
     document.getElementById('householdModal').classList.remove('active');
+    console.log('Modal closed');
 }
 
-// Filter map view
-function filterMap(filter) {
+// Filter map view - Make it globally accessible
+window.filterMap = function(filter) {
+    console.log('Filtering map:', filter);
     // Update button active state
     document.querySelectorAll('.map-btn').forEach(btn => btn.classList.remove('active'));
     event.target.closest('.map-btn').classList.add('active');
     
     // Implement filter logic here
-    console.log('Filter:', filter);
+    console.log('Filter applied:', filter);
 }
 
 // Update truck positions (simulate real-time updates)
@@ -484,7 +507,9 @@ window.onclick = function(event) {
 }
 
 // Logout function
-function logout() {
+// Logout function - Make it globally accessible
+window.logout = function() {
+    console.log('Logging out...');
     // Clear localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('admin');

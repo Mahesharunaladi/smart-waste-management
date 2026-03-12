@@ -211,7 +211,7 @@ This project is open source and available for educational and commercial use.
 
 ## 👤 Author
 
-**Mahesh Arunaladi**
+**Mahesh Arun Aladi**
 
 ## 🤝 Contributing
 

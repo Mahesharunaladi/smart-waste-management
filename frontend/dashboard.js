@@ -1,3 +1,13 @@
+// Check authentication on page load
+(function checkAuth() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        // No token found, redirect to login
+        window.location.href = 'login.html';
+        return;
+    }
+})();
+
 // Initialize Map
 let map;
 let markers = {
@@ -10,38 +20,50 @@ const trucksData = [
     {
         id: 'T001',
         name: 'Truck 1',
+        truckNumber: 'KA-09-MX-1234',
+        registrationNumber: 'KA09MX1234',
         status: 'active',
         location: [12.3051, 76.6553], // Mysuru coordinates
         wasteCollected: 245,
         currentColony: 'Jayanagar',
-        driver: 'Ramesh Kumar'
+        driver: 'Ramesh Kumar',
+        driverPhone: '9876543210'
     },
     {
         id: 'T002',
         name: 'Truck 2',
+        truckNumber: 'KA-09-MX-5678',
+        registrationNumber: 'KA09MX5678',
         status: 'active',
         location: [12.3110, 76.6590],
         wasteCollected: 189,
         currentColony: 'Kuvempunagar',
-        driver: 'Suresh Babu'
+        driver: 'Suresh Babu',
+        driverPhone: '9876543211'
     },
     {
         id: 'T003',
         name: 'Truck 3',
+        truckNumber: 'KA-09-MX-9012',
+        registrationNumber: 'KA09MX9012',
         status: 'idle',
         location: [12.2958, 76.6394],
         wasteCollected: 0,
         currentColony: 'Depot',
-        driver: 'Mahesh Kumar'
+        driver: 'Mahesh Kumar',
+        driverPhone: '9876543212'
     },
     {
         id: 'T004',
         name: 'Truck 4',
+        truckNumber: 'KA-09-MX-3456',
+        registrationNumber: 'KA09MX3456',
         status: 'active',
         location: [12.3200, 76.6450],
         wasteCollected: 312,
         currentColony: 'Vijayanagar',
-        driver: 'Ravi Shankar'
+        driver: 'Ravi Shankar',
+        driverPhone: '9876543213'
     }
 ];
 
@@ -449,4 +471,14 @@ window.onclick = function(event) {
     if (event.target === modal) {
         closeModal();
     }
+}
+
+// Logout function
+function logout() {
+    // Clear localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('admin');
+    
+    // Redirect to home page
+    window.location.href = 'index.html';
 }

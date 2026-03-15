@@ -15,89 +15,172 @@ let markers = {
     houses: []
 };
 
-// Sample Data - Replace with actual API calls
-const trucksData = [
-    {
-        id: 'T001',
-        name: 'Truck 1',
-        truckNumber: 'KA-09-MX-1234',
-        registrationNumber: 'KA09MX1234',
-        status: 'active',
-        location: [12.3051, 76.6553], // Mysuru coordinates
-        wasteCollected: 245,
-        currentColony: 'Jayanagar',
-        driver: 'Ramesh Kumar',
-        driverPhone: '9876543210'
-    },
-    {
-        id: 'T002',
-        name: 'Truck 2',
-        truckNumber: 'KA-09-MX-5678',
-        registrationNumber: 'KA09MX5678',
-        status: 'active',
-        location: [12.3110, 76.6590],
-        wasteCollected: 189,
-        currentColony: 'Kuvempunagar',
-        driver: 'Suresh Babu',
-        driverPhone: '9876543211'
-    },
-    {
-        id: 'T003',
-        name: 'Truck 3',
-        truckNumber: 'KA-09-MX-9012',
-        registrationNumber: 'KA09MX9012',
-        status: 'idle',
-        location: [12.2958, 76.6394],
-        wasteCollected: 0,
-        currentColony: 'Depot',
-        driver: 'Yallappa',
-        driverPhone: '9876543212'
-    },
-    {
-        id: 'T004',
-        name: 'Truck 4',
-        truckNumber: 'KA-09-MX-3456',
-        registrationNumber: 'KA09MX3456',
-        status: 'active',
-        location: [12.3200, 76.6450],
-        wasteCollected: 312,
-        currentColony: 'Vijayanagar',
-        driver: 'Ravi Shankar',
-        driverPhone: '9876543213'
-    }
-];
+// Data variables - will be loaded from API
+let trucksData = [];
+let coloniesData = [];
 
-const coloniesData = [
-    {
-        id: 'C001',
-        name: 'Jayanagar Colony',
-        location: [12.3051, 76.6553],
-        totalHouses: 150,
-        collectedHouses: 135,
-        missedHouses: 15,
-        wasteCollected: 245,
-        households: [
-            { id: 'H001', address: 'House #12, 1st Main', status: 'collected', waste: 2.5 },
-            { id: 'H002', address: 'House #15, 1st Main', status: 'collected', waste: 3.2 },
-            { id: 'H003', address: 'House #18, 2nd Cross', status: 'missed', waste: 0 },
-            { id: 'H004', address: 'House #21, 2nd Cross', status: 'collected', waste: 1.8 },
-            { id: 'H005', address: 'House #25, 3rd Main', status: 'missed', waste: 0 }
-        ]
-    },
-    {
-        id: 'C002',
-        name: 'Kuvempunagar Colony',
-        location: [12.3110, 76.6590],
-        totalHouses: 200,
-        collectedHouses: 185,
-        missedHouses: 15,
-        wasteCollected: 189,
-        households: [
-            { id: 'H011', address: 'House #5, Block A', status: 'collected', waste: 2.1 },
-            { id: 'H012', address: 'House #8, Block A', status: 'collected', waste: 2.8 },
-            { id: 'H013', address: 'House #12, Block B', status: 'missed', waste: 0 },
-            { id: 'H014', address: 'House #15, Block B', status: 'collected', waste: 3.5 },
-            { id: 'H015', address: 'House #20, Block C', status: 'missed', waste: 0 }
+// API base URL
+const API_BASE = 'http://localhost:5000/api';
+
+// Load data from API
+async function loadData() {
+    try {
+        // Load trucks
+        const trucksResponse = await fetch(`${API_BASE}/trucks`);
+        const trucksResult = await trucksResponse.json();
+        if (trucksResult.success) {
+            trucksData = trucksResult.trucks.map(truck => ({
+                id: truck.truckId,
+                name: `Truck ${truck.truckId}`,
+                truckNumber: truck.registrationNumber,
+                registrationNumber: truck.registrationNumber,
+                status: truck.status,
+                location: truck.currentLocation?.coordinates || [12.3051, 76.6553], // Default Mysuru
+                wasteCollected: truck.totalWasteCollected || 0,
+                currentColony: truck.route?.zone || 'Unknown',
+                driver: truck.driver?.name || 'Unknown',
+                driverPhone: truck.driver?.phone || 'N/A'
+            }));
+        }
+
+        // Load households/colonies
+        const householdsResponse = await fetch(`${API_BASE}/households`);
+        const householdsResult = await householdsResponse.json();
+        if (householdsResult.success) {
+            // Group households by colony
+            const colonyMap = {};
+            householdsResult.households.forEach(household => {
+                const colonyName = household.address?.colony || 'Unknown Colony';
+                if (!colonyMap[colonyName]) {
+                    colonyMap[colonyName] = {
+                        id: `C${Object.keys(colonyMap).length + 1}`,
+                        name: colonyName,
+                        location: household.address?.coordinates || [12.3051, 76.6553],
+                        totalHouses: 0,
+                        collectedHouses: 0,
+                        missedHouses: 0,
+                        wasteCollected: 0,
+                        households: []
+                    };
+                }
+                colonyMap[colonyName].totalHouses++;
+                colonyMap[colonyName].households.push({
+                    id: household.householdId,
+                    address: household.address?.street || 'Unknown',
+                    status: household.wasteStatus || 'pending',
+                    waste: household.wasteGenerated || 0
+                });
+                if (household.wasteStatus === 'collected') {
+                    colonyMap[colonyName].collectedHouses++;
+                    colonyMap[colonyName].wasteCollected += household.wasteGenerated || 0;
+                } else {
+                    colonyMap[colonyName].missedHouses++;
+                }
+            });
+            coloniesData = Object.values(colonyMap);
+        }
+
+        // Load activities for analytics
+        const activitiesResponse = await fetch(`${API_BASE}/activities`);
+        const activitiesResult = await activitiesResponse.json();
+        if (activitiesResult.success) {
+            // Process activities data if needed
+        }
+
+    } catch (error) {
+        console.error('Error loading data:', error);
+        // Fallback to sample data if API fails
+        loadSampleData();
+    }
+}
+
+function loadSampleData() {
+    trucksData = [
+        {
+            id: 'T001',
+            name: 'Truck 1',
+            truckNumber: 'KA-09-MX-1234',
+            registrationNumber: 'KA09MX1234',
+            status: 'active',
+            location: [12.3051, 76.6553],
+            wasteCollected: 245,
+            currentColony: 'Jayanagar',
+            driver: 'Ramesh Kumar',
+            driverPhone: '9876543210'
+        },
+        {
+            id: 'T002',
+            name: 'Truck 2',
+            truckNumber: 'KA-09-MX-5678',
+            registrationNumber: 'KA09MX5678',
+            status: 'active',
+            location: [12.3110, 76.6590],
+            wasteCollected: 189,
+            currentColony: 'Kuvempunagar',
+            driver: 'Suresh Babu',
+            driverPhone: '9876543211'
+        },
+        {
+            id: 'T003',
+            name: 'Truck 3',
+            truckNumber: 'KA-09-MX-9012',
+            registrationNumber: 'KA09MX9012',
+            status: 'idle',
+            location: [12.2958, 76.6394],
+            wasteCollected: 0,
+            currentColony: 'Depot',
+            driver: 'Yallappa',
+            driverPhone: '9876543212'
+        },
+        {
+            id: 'T004',
+            name: 'Truck 4',
+            truckNumber: 'KA-09-MX-3456',
+            registrationNumber: 'KA09MX3456',
+            status: 'active',
+            location: [12.3200, 76.6450],
+            wasteCollected: 312,
+            currentColony: 'Vijayanagar',
+            driver: 'Ravi Shankar',
+            driverPhone: '9876543213'
+        }
+    ];
+
+    coloniesData = [
+        {
+            id: 'C001',
+            name: 'Jayanagar Colony',
+            location: [12.3051, 76.6553],
+            totalHouses: 150,
+            collectedHouses: 135,
+            missedHouses: 15,
+            wasteCollected: 245,
+            households: [
+                { id: 'H001', address: 'House #12, 1st Main', status: 'collected', waste: 2.5 },
+                { id: 'H002', address: 'House #15, 1st Main', status: 'collected', waste: 2.2 },
+                { id: 'H003', address: 'House #18, 2nd Cross', status: 'missed', waste: 0 },
+                { id: 'H004', address: 'House #21, 2nd Cross', status: 'collected', waste: 1.8 },
+                { id: 'H005', address: 'House #25, 3rd Main', status: 'missed', waste: 0 }
+            ]
+        },
+        {
+            id: 'C002',
+            name: 'Kuvempunagar Colony',
+            location: [12.3110, 76.6590],
+            totalHouses: 200,
+            collectedHouses: 185,
+            missedHouses: 15,
+            wasteCollected: 189,
+            households: [
+                { id: 'H011', address: 'House #5, Block A', status: 'collected', waste: 2.1 },
+                { id: 'H012', address: 'House #8, Block A', status: 'collected', waste: 2.8 },
+                { id: 'H013', address: 'House #12, Block B', status: 'missed', waste: 0 },
+                { id: 'H014', address: 'House #15, Block B', status: 'collected', waste: 3.5 },
+                { id: 'H015', address: 'House #20, Block C', status: 'missed', waste: 0 }
+            ]
+        }
+    ];
+}
         ]
     },
     {

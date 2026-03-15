@@ -406,6 +406,9 @@ window.focusTruck = function(truckId) {
 // Show/hide dashboard sections based on sidebar
 function setupSidebarNavigation() {
     const navItems = document.querySelectorAll('.sidebar .nav-item');
+    // Build a map of section elements
+    const sections = document.querySelectorAll('.details-panel .panel-section');
+
     navItems.forEach(item => {
         const target = item.getAttribute('data-target');
         if (!target) return;
@@ -417,22 +420,27 @@ function setupSidebarNavigation() {
             item.classList.add('active');
             item.setAttribute('aria-selected', 'true');
 
-            // show/hide sections in details panel
-            const sections = document.querySelectorAll('.details-panel .panel-section');
+            // hide all sections first
             sections.forEach(s => s.classList.add('hidden'));
 
-            // map target shows map + details panels
+            // map target shows map + all details
             if (target === 'map') {
-                // show main sections
                 sections.forEach(s => s.classList.remove('hidden'));
+                // ensure map redraws and is visible
+                if (map && typeof map.invalidateSize === 'function') {
+                    setTimeout(() => { try { map.invalidateSize(); } catch (e) { console.warn(e); } }, 200);
+                    // optionally focus the map container
+                    const mapEl = document.getElementById('map'); if (mapEl) mapEl.focus();
+                }
             } else if (target === 'trucks') {
                 const sec = document.querySelector('.details-panel .panel-section[data-section="trucks"]');
                 if (sec) sec.classList.remove('hidden');
+                // focus first truck item if present
+                setTimeout(() => { const first = document.querySelector('#truckList .truck-item'); if (first) first.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
             } else if (target === 'households') {
                 const sec = document.querySelector('.details-panel .panel-section[data-section="colonies"]');
                 if (sec) sec.classList.remove('hidden');
             } else if (target === 'analytics') {
-                // For now show activity as analytics placeholder
                 const sec = document.querySelector('.details-panel .panel-section[data-section="activity"]');
                 if (sec) sec.classList.remove('hidden');
             } else if (target === 'alerts' || target === 'settings') {
@@ -444,6 +452,12 @@ function setupSidebarNavigation() {
         item.addEventListener('click', (e) => { e.preventDefault(); activate(); });
         item.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); } });
     });
+
+    // Activate the initially-marked nav item (if any) so panels match UI
+    const initial = document.querySelector('.sidebar .nav-item.active');
+    if (initial) {
+        initial.click();
+    }
 }
 
 function setupMapControls() {

@@ -22,11 +22,22 @@ let coloniesData = [];
 // API base URL
 const API_BASE = 'http://localhost:3001/api';
 
+// Get auth headers
+function getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    return {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    };
+}
+
 // Load data from API
 async function loadData() {
     try {
         // Load trucks
-        const trucksResponse = await fetch(`${API_BASE}/trucks`);
+        const trucksResponse = await fetch(`${API_BASE}/trucks`, {
+            headers: getAuthHeaders()
+        });
         const trucksResult = await trucksResponse.json();
         if (trucksResult.success) {
             trucksData = trucksResult.trucks.map(truck => ({
@@ -44,7 +55,9 @@ async function loadData() {
         }
 
         // Load households/colonies
-        const householdsResponse = await fetch(`${API_BASE}/households`);
+        const householdsResponse = await fetch(`${API_BASE}/households`, {
+            headers: getAuthHeaders()
+        });
         const householdsResult = await householdsResponse.json();
         if (householdsResult.success) {
             // Group households by colony
@@ -81,7 +94,9 @@ async function loadData() {
         }
 
         // Load activities for analytics
-        const activitiesResponse = await fetch(`${API_BASE}/activities`);
+        const activitiesResponse = await fetch(`${API_BASE}/activities`, {
+            headers: getAuthHeaders()
+        });
         const activitiesResult = await activitiesResponse.json();
         if (activitiesResult.success) {
             // Process activities data for chart

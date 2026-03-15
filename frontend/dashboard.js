@@ -20,7 +20,7 @@ let trucksData = [];
 let coloniesData = [];
 
 // API base URL
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'http://localhost:3001/api';
 
 // Load data from API
 async function loadData() {
@@ -32,11 +32,11 @@ async function loadData() {
             trucksData = trucksResult.trucks.map(truck => ({
                 id: truck.truckId,
                 name: `Truck ${truck.truckId}`,
-                truckNumber: truck.registrationNumber,
-                registrationNumber: truck.registrationNumber,
+                truckNumber: truck.truckId, // Assuming truckId is the registration
+                registrationNumber: truck.truckId,
                 status: truck.status,
-                location: truck.currentLocation?.coordinates || [12.3051, 76.6553], // Default Mysuru
-                wasteCollected: truck.totalWasteCollected || 0,
+                location: truck.location?.coordinates || [12.3051, 76.6553], // Default Mysuru
+                wasteCollected: truck.totalWasteCollectedToday || 0,
                 currentColony: truck.route?.zone || 'Unknown',
                 driver: truck.driver?.name || 'Unknown',
                 driverPhone: truck.driver?.phone || 'N/A'
@@ -50,12 +50,12 @@ async function loadData() {
             // Group households by colony
             const colonyMap = {};
             householdsResult.households.forEach(household => {
-                const colonyName = household.address?.colony || 'Unknown Colony';
+                const colonyName = household.address?.zone || 'Unknown Colony';
                 if (!colonyMap[colonyName]) {
                     colonyMap[colonyName] = {
                         id: `C${Object.keys(colonyMap).length + 1}`,
                         name: colonyName,
-                        location: household.address?.coordinates || [12.3051, 76.6553],
+                        location: [12.3051, 76.6553], // Default location, could be calculated
                         totalHouses: 0,
                         collectedHouses: 0,
                         missedHouses: 0,
@@ -67,13 +67,13 @@ async function loadData() {
                 colonyMap[colonyName].households.push({
                     id: household.householdId,
                     address: household.address?.street || 'Unknown',
-                    status: household.wasteStatus || 'pending',
-                    waste: household.wasteGenerated || 0
+                    status: household.status === 'compliant' ? 'collected' : household.status === 'missed' ? 'missed' : 'pending',
+                    waste: household.wasteData?.todayWaste || 0
                 });
-                if (household.wasteStatus === 'collected') {
+                if (household.status === 'compliant') {
                     colonyMap[colonyName].collectedHouses++;
-                    colonyMap[colonyName].wasteCollected += household.wasteGenerated || 0;
-                } else {
+                    colonyMap[colonyName].wasteCollected += household.wasteData?.todayWaste || 0;
+                } else if (household.status === 'missed') {
                     colonyMap[colonyName].missedHouses++;
                 }
             });
@@ -178,44 +178,41 @@ function loadSampleData() {
                 { id: 'H014', address: 'House #15, Block B', status: 'collected', waste: 3.5 },
                 { id: 'H015', address: 'House #20, Block C', status: 'missed', waste: 0 }
             ]
+        },
+        {
+            id: 'C003',
+            name: 'Vijayanagar Colony',
+            location: [12.3200, 76.6450],
+            totalHouses: 180,
+            collectedHouses: 165,
+            missedHouses: 15,
+            wasteCollected: 312,
+            households: [
+                { id: 'H021', address: 'House #3, MG Road', status: 'collected', waste: 4.2 },
+                { id: 'H022', address: 'House #7, MG Road', status: 'collected', waste: 3.1 },
+                { id: 'H023', address: 'House #11, KC Road', status: 'missed', waste: 0 },
+                { id: 'H024', address: 'House #14, KC Road', status: 'collected', waste: 2.9 },
+                { id: 'H025', address: 'House #18, JC Road', status: 'missed', waste: 0 }
+            ]
+        },
+        {
+            id: 'C004',
+            name: 'Saraswathipuram Colony',
+            location: [12.2980, 76.6410],
+            totalHouses: 120,
+            collectedHouses: 110,
+            missedHouses: 10,
+            wasteCollected: 178,
+            households: [
+                { id: 'H031', address: 'House #9, Main Road', status: 'collected', waste: 2.3 },
+                { id: 'H032', address: 'House #13, 1st Cross', status: 'collected', waste: 2.7 },
+                { id: 'H033', address: 'House #16, 2nd Cross', status: 'missed', waste: 0 },
+                { id: 'H034', address: 'House #22, 3rd Cross', status: 'collected', waste: 3.4 },
+                { id: 'H035', address: 'House #28, 4th Main', status: 'missed', waste: 0 }
+            ]
         }
     ];
 }
-        ]
-    },
-    {
-        id: 'C003',
-        name: 'Vijayanagar Colony',
-        location: [12.3200, 76.6450],
-        totalHouses: 180,
-        collectedHouses: 165,
-        missedHouses: 15,
-        wasteCollected: 312,
-        households: [
-            { id: 'H021', address: 'House #3, MG Road', status: 'collected', waste: 4.2 },
-            { id: 'H022', address: 'House #7, MG Road', status: 'collected', waste: 3.1 },
-            { id: 'H023', address: 'House #11, KC Road', status: 'missed', waste: 0 },
-            { id: 'H024', address: 'House #14, KC Road', status: 'collected', waste: 2.9 },
-            { id: 'H025', address: 'House #18, JC Road', status: 'missed', waste: 0 }
-        ]
-    },
-    {
-        id: 'C004',
-        name: 'Saraswathipuram Colony',
-        location: [12.2980, 76.6410],
-        totalHouses: 120,
-        collectedHouses: 110,
-        missedHouses: 10,
-        wasteCollected: 178,
-        households: [
-            { id: 'H031', address: 'House #9, Main Road', status: 'collected', waste: 2.3 },
-            { id: 'H032', address: 'House #13, 1st Cross', status: 'collected', waste: 2.7 },
-            { id: 'H033', address: 'House #16, 2nd Cross', status: 'missed', waste: 0 },
-            { id: 'H034', address: 'House #22, 3rd Cross', status: 'collected', waste: 3.4 },
-            { id: 'H035', address: 'House #28, 4th Main', status: 'missed', waste: 0 }
-        ]
-    }
-];
 
 const recentActivities = [
     {
@@ -673,7 +670,10 @@ function updateTruckPositions() {
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', initDashboard);
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadData();
+    initDashboard();
+});
 
 // Close modal on outside click
 window.onclick = function(event) {

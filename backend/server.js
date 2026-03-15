@@ -35,6 +35,8 @@ mongoose.connect(process.env.MONGODB_URI, {
     console.log('✅ MongoDB Connected Successfully');
     // Initialize default admin accounts
     initializeAdmins();
+    // Initialize sample data
+    initializeSampleData();
 })
 .catch((err) => {
     console.error('❌ MongoDB Connection Error:', err.message);
@@ -123,6 +125,88 @@ async function initializeAdmins() {
             }
         } catch (error) {
             console.error(`Error creating admin ${adminData.adminId}:`, error.message);
+        }
+    }
+}
+
+// Initialize sample data for demo
+async function initializeSampleData() {
+    const Truck = require('./models/Truck');
+    const Household = require('./models/Household');
+
+    // Initialize trucks
+    const trucks = [
+        {
+            truckId: 'T001',
+            driver: { name: 'Ramesh Kumar', phone: '9876543210' },
+            status: 'active',
+            location: { type: 'Point', coordinates: [76.6553, 12.3051] }, // [lng, lat]
+            capacity: { current: 24, max: 1000 },
+            route: { zone: 'Jayanagar' },
+            totalWasteCollectedToday: 245
+        },
+        {
+            truckId: 'T002',
+            driver: { name: 'Suresh Babu', phone: '9876543211' },
+            status: 'active',
+            location: { type: 'Point', coordinates: [76.6590, 12.3110] },
+            capacity: { current: 19, max: 1000 },
+            route: { zone: 'Kuvempunagar' },
+            totalWasteCollectedToday: 189
+        },
+        {
+            truckId: 'T003',
+            driver: { name: 'Yallappa', phone: '9876543212' },
+            status: 'idle',
+            location: { type: 'Point', coordinates: [76.6394, 12.2958] },
+            capacity: { current: 0, max: 1000 },
+            route: { zone: 'Depot' },
+            totalWasteCollectedToday: 0
+        },
+        {
+            truckId: 'T004',
+            driver: { name: 'Ravi Shankar', phone: '9876543213' },
+            status: 'active',
+            location: { type: 'Point', coordinates: [76.6450, 12.3200] },
+            capacity: { current: 31, max: 1000 },
+            route: { zone: 'Vijayanagar' },
+            totalWasteCollectedToday: 312
+        }
+    ];
+
+    for (const truckData of trucks) {
+        try {
+            const existingTruck = await Truck.findOne({ truckId: truckData.truckId });
+            if (!existingTruck) {
+                const truck = new Truck(truckData);
+                await truck.save();
+                console.log(`✅ Created truck: ${truckData.truckId}`);
+            }
+        } catch (error) {
+            console.error(`Error creating truck ${truckData.truckId}:`, error.message);
+        }
+    }
+
+    // Initialize households
+    const households = [
+        { householdId: 'H001', name: 'Rajesh Family', address: { street: 'House #12, 1st Main', zone: 'Jayanagar' }, contact: { phone: '9876543214' }, status: 'compliant', wasteData: { todayWaste: 2.5 } },
+        { householdId: 'H002', name: 'Priya Household', address: { street: 'House #15, 1st Main', zone: 'Jayanagar' }, contact: { phone: '9876543215' }, status: 'compliant', wasteData: { todayWaste: 2.2 } },
+        { householdId: 'H003', name: 'Kumar Residence', address: { street: 'House #18, 2nd Cross', zone: 'Jayanagar' }, contact: { phone: '9876543216' }, status: 'missed', wasteData: { todayWaste: 0 } },
+        { householdId: 'H011', name: 'Sharma Family', address: { street: 'House #5, Block A', zone: 'Kuvempunagar' }, contact: { phone: '9876543217' }, status: 'compliant', wasteData: { todayWaste: 2.1 } },
+        { householdId: 'H012', name: 'Patel Household', address: { street: 'House #8, Block A', zone: 'Kuvempunagar' }, contact: { phone: '9876543218' }, status: 'compliant', wasteData: { todayWaste: 2.8 } },
+        { householdId: 'H013', name: 'Gupta Residence', address: { street: 'House #12, Block B', zone: 'Kuvempunagar' }, contact: { phone: '9876543219' }, status: 'missed', wasteData: { todayWaste: 0 } }
+    ];
+
+    for (const householdData of households) {
+        try {
+            const existingHousehold = await Household.findOne({ householdId: householdData.householdId });
+            if (!existingHousehold) {
+                const household = new Household(householdData);
+                await household.save();
+                console.log(`✅ Created household: ${householdData.householdId}`);
+            }
+        } catch (error) {
+            console.error(`Error creating household ${householdData.householdId}:`, error.message);
         }
     }
 }

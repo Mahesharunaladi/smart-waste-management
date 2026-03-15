@@ -180,6 +180,11 @@ function initDashboard() {
         updateStats();
         updateTruckPositions();
     }, 30000);
+
+    // Wire sidebar navigation items to show/hide panels
+    setupSidebarNavigation();
+    // Wire map control buttons
+    setupMapControls();
 }
 
 // Initialize Leaflet Map
@@ -398,6 +403,64 @@ window.focusTruck = function(truckId) {
     }
 }
 
+// Show/hide dashboard sections based on sidebar
+function setupSidebarNavigation() {
+    const navItems = document.querySelectorAll('.sidebar .nav-item');
+    navItems.forEach(item => {
+        const target = item.getAttribute('data-target');
+        if (!target) return;
+
+        const activate = () => {
+            // update active state in sidebar
+            navItems.forEach(n => n.classList.remove('active'));
+            navItems.forEach(n => n.setAttribute('aria-selected', 'false'));
+            item.classList.add('active');
+            item.setAttribute('aria-selected', 'true');
+
+            // show/hide sections in details panel
+            const sections = document.querySelectorAll('.details-panel .panel-section');
+            sections.forEach(s => s.classList.add('hidden'));
+
+            // map target shows map + details panels
+            if (target === 'map') {
+                // show main sections
+                sections.forEach(s => s.classList.remove('hidden'));
+            } else if (target === 'trucks') {
+                const sec = document.querySelector('.details-panel .panel-section[data-section="trucks"]');
+                if (sec) sec.classList.remove('hidden');
+            } else if (target === 'households') {
+                const sec = document.querySelector('.details-panel .panel-section[data-section="colonies"]');
+                if (sec) sec.classList.remove('hidden');
+            } else if (target === 'analytics') {
+                // For now show activity as analytics placeholder
+                const sec = document.querySelector('.details-panel .panel-section[data-section="activity"]');
+                if (sec) sec.classList.remove('hidden');
+            } else if (target === 'alerts' || target === 'settings') {
+                const sec = document.querySelector('.details-panel .panel-section[data-section="activity"]');
+                if (sec) sec.classList.remove('hidden');
+            }
+        };
+
+        item.addEventListener('click', (e) => { e.preventDefault(); activate(); });
+        item.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); } });
+    });
+}
+
+function setupMapControls() {
+    const buttons = document.querySelectorAll('.map-controls .map-btn');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const filter = btn.getAttribute('data-filter');
+            // update active class
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            // call filter
+            try { window.filterMap(filter); } catch (err) { console.error(err); }
+        });
+        btn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); } });
+    });
+}
+
 // Show colony details in modal
 // Show colony details in modal - Make it globally accessible
 window.showColonyDetails = function(colonyId) {
@@ -469,11 +532,28 @@ window.closeModal = function() {
 // Filter map view - Make it globally accessible
 window.filterMap = function(filter) {
     console.log('Filtering map:', filter);
-    // Update button active state
-    document.querySelectorAll('.map-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.closest('.map-btn').classList.add('active');
-    
-    // Implement filter logic here
+    // Implement filter logic here - placeholder behavior
+    if (!map) {
+        console.warn('Map not initialized yet - filter deferred');
+        return;
+    }
+
+    // Example: adjust marker visibility based on truck status
+    if (filter === 'all') {
+        markers.trucks.forEach(t => t.marker.addTo(map));
+    } else if (filter === 'active') {
+        markers.trucks.forEach(t => {
+            if (t.data.status === 'active') t.marker.addTo(map); else map.removeLayer(t.marker);
+        });
+    } else if (filter === 'idle') {
+        markers.trucks.forEach(t => {
+            if (t.data.status === 'idle') t.marker.addTo(map); else map.removeLayer(t.marker);
+        });
+    } else if (filter === 'missed') {
+        // show all colony missed markers — no-op for now
+        console.log('Missed filter selected - highlighting colonies');
+    }
+
     console.log('Filter applied:', filter);
 }
 

@@ -661,3 +661,20 @@ body {
         display: none;
     }
 }
+
+/* Chart Container */
+.chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg-light);
+    border-radius: 0.5rem;
+}
+
+#wasteChart {
+    max-width: 100%;
+    height: auto !important;
+    max-height: 300px;
+}

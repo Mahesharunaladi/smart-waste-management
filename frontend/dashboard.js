@@ -84,7 +84,25 @@ async function loadData() {
         const activitiesResponse = await fetch(`${API_BASE}/activities`);
         const activitiesResult = await activitiesResponse.json();
         if (activitiesResult.success) {
-            // Process activities data if needed
+            // Process activities data for chart
+            let collectedWaste = 0;
+            let missedCollections = 0;
+            let pendingCollections = 0;
+
+            activitiesResult.activities.forEach(activity => {
+                if (activity.type === 'collection' && activity.metadata?.wasteAmount) {
+                    collectedWaste += activity.metadata.wasteAmount;
+                } else if (activity.type === 'alert' && activity.title.toLowerCase().includes('missed')) {
+                    missedCollections++;
+                }
+            });
+
+            // Store activity stats for chart
+            window.activityStats = {
+                collected: collectedWaste,
+                missed: missedCollections,
+                pending: pendingCollections
+            };
         }
 
     } catch (error) {
@@ -254,11 +272,13 @@ function initDashboard() {
     renderTrucks();
     renderColonies();
     renderActivities();
+    renderWasteChart();
     
     // Auto-refresh every 30 seconds
     setInterval(() => {
         updateStats();
         updateTruckPositions();
+        renderWasteChart();
     }, 30000);
 
     // Wire sidebar navigation items to show/hide panels
@@ -459,6 +479,107 @@ function renderActivities() {
             </div>
         </div>
     `).join('');
+}
+
+// Render waste collection pie chart
+function renderWasteChart() {
+    const ctx = document.getElementById('wasteChart');
+    if (!ctx) return;
+    if (typeof Chart === 'undefined') return;
+
+    // Calculate statistics from current data
+    let totalCollected = 0;
+    let totalMissed = 0;
+    let totalPending = 0;
+
+    // Use activity stats if available
+    if (window.activityStats) {
+        totalCollected = window.activityStats.collected;
+        totalMissed = window.activityStats.missed;
+    }
+
+    // Calculate from colonies data
+    coloniesData.forEach(colony => {
+        totalCollected += colony.wasteCollected;
+        totalMissed += colony.missedHouses;
+    });
+
+    // Calculate pending from households
+    coloniesData.forEach(colony => {
+        colony.households.forEach(household => {
+            if (household.status === 'pending') {
+                totalPending += household.waste || 0;
+            }
+        });
+    });
+
+    // Calculate from trucks data
+    const truckWaste = trucksData.reduce((sum, truck) => sum + (truck.wasteCollected || 0), 0);
+    totalCollected = Math.max(totalCollected, truckWaste);
+
+    // If still no data, use sample values
+    if (totalCollected === 0 && totalMissed === 0 && totalPending === 0) {
+        totalCollected = 756;
+        totalMissed = 89;
+        totalPending = 45;
+    }
+
+    const data = {
+        labels: ['Collected Waste (kg)', 'Missed Collections', 'Pending Collections'],
+        datasets: [{
+            data: [totalCollected, totalMissed, totalPending],
+            backgroundColor: [
+                '#10b981', // Green for collected
+                '#ef4444', // Red for missed
+                '#f59e0b'  // Orange for pending
+            ],
+            borderColor: [
+                '#059669',
+                '#dc2626',
+                '#d97706'
+            ],
+            borderWidth: 2
+        }]
+    };
+
+    const config = {
+        type: 'pie',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // Destroy existing chart if it exists
+    if (window.wasteChart instanceof Chart) {
+        window.wasteChart.destroy();
+    }
+
+    window.wasteChart = new Chart(ctx, config);
 }
 
 // Focus on truck - Make it globally accessible

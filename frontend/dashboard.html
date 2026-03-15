@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Sidebar -->
@@ -188,6 +189,14 @@
                     </h3>
                     <div id="activityList" class="activity-list">
                         <!-- Activity will be populated here -->
+                    </div>
+                    
+                    <!-- Waste Collection Pie Chart -->
+                    <h3 style="margin-top: 2rem;">
+                        <i class="fas fa-chart-pie"></i> Waste Collection Overview
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="wasteChart" width="300" height="300"></canvas>
                     </div>
                 </div>
             </div>

@@ -122,7 +122,7 @@ async function loadData() {
         loadSampleData();
     }
 
-    // Update map markers if map is already initialized
+    
     updateMapMarkers();
 }
 
@@ -287,18 +287,22 @@ function initDashboard() {
     renderColonies();
     renderActivities();
     renderWasteChart();
+    setupSidebarNavigation();
+    setupMapControls();
     
-    // Auto-refresh every 30 seconds
+    // Live truck tracking - update every 5 seconds
+    setInterval(async () => {
+        await loadData();
+        updateMapMarkers();
+        updateTruckPositions();
+        renderTrucks();
+    }, 5000);
+
+    // Auto-refresh dashboard stats every 30 seconds
     setInterval(() => {
         updateStats();
-        updateTruckPositions();
         renderWasteChart();
     }, 30000);
-
-    // Wire sidebar navigation items to show/hide panels
-    setupSidebarNavigation();
-    // Wire map control buttons
-    setupMapControls();
 }
 
 // Initialize Leaflet Map
@@ -605,13 +609,19 @@ function renderTrucks() {
                     <i class="fas fa-truck"></i>
                     ${truck.name} - ${truck.truckNumber}
                 </div>
-                <span class="status-badge ${truck.status}">${truck.status.toUpperCase()}</span>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <span class="live-indicator" title="Live tracking active">
+                        <span class="pulse"></span> LIVE
+                    </span>
+                    <span class="status-badge ${truck.status}">${truck.status.toUpperCase()}</span>
+                </div>
             </div>
             <div class="truck-details">
                 <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem;">
                     <span style="font-size: 0.85rem;"><i class="fas fa-id-card"></i> <strong>Registration:</strong> ${truck.registrationNumber}</span>
                     <span style="font-size: 0.85rem;"><i class="fas fa-user"></i> <strong>Driver:</strong> ${truck.driver}</span>
                     <span style="font-size: 0.85rem;"><i class="fas fa-phone"></i> <strong>Phone:</strong> ${truck.driverPhone}</span>
+                    <span style="font-size: 0.85rem;"><i class="fas fa-location-dot"></i> <strong>Coordinates:</strong> ${truck.location[0].toFixed(4)}, ${truck.location[1].toFixed(4)}</span>
                 </div>
                 <div style="margin-top: 0.5rem; display: flex; gap: 1rem; padding-top: 0.5rem; border-top: 1px solid #e5e7eb;">
                     <span><i class="fas fa-weight"></i> ${truck.wasteCollected} kg</span>
@@ -1015,6 +1025,27 @@ window.onclick = function(event) {
     const modal = document.getElementById('householdModal');
     if (event.target === modal) {
         closeModal();
+    }
+}
+
+// Focus on truck on the map
+window.focusTruck = function(truckId) {
+    const truck = trucksData.find(t => t.id === truckId);
+    if (truck && map) {
+        // Center map on truck
+        map.setView(truck.location, 15);
+        
+        // Highlight the truck marker
+        const truckMarker = markers.trucks.find(m => m.id === truckId);
+        if (truckMarker) {
+            truckMarker.marker.openPopup();
+        }
+        
+        // Switch to map view
+        const mapPanel = document.querySelector('[data-target="map"]');
+        if (mapPanel) {
+            mapPanel.click();
+        }
     }
 }
 

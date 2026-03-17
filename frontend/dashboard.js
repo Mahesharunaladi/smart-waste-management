@@ -429,6 +429,8 @@ function updateMapMarkers() {
     }
 }
 
+// Add truck marker to map
+function addTruckMarker(truck) {
     console.log('Adding truck marker for:', truck.name, 'at location:', truck.location);
 
     if (!map) {
@@ -468,7 +470,7 @@ function updateMapMarkers() {
     
     console.log('Truck marker added to map for:', truck.name);
     markers.trucks.push({ id: truck.id, marker, data: truck });
-
+}
 
 // Add colony marker to map
 function addColonyMarker(colony) {
@@ -1024,4 +1026,4 @@ window.logout = function() {
     
     // Redirect to home page
     window.location.href = 'index.html';
-}
+

@@ -538,49 +538,41 @@ function addTruckMarker(truck) {
     markers.trucks.push({ id: truck.id, marker, data: truck });
 }
 
-// Add colony marker to map
-function addColonyMarker(colony) {
-    // Add collected houses
-    const collectedIcon = L.divIcon({
-        className: 'custom-marker',
-        html: `<div style="background: #3b82f6; color: white; padding: 4px 8px; 
-                border-radius: 4px; font-size: 12px; font-weight: bold;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                ${colony.collectedHouses}
-              </div>`,
-        iconSize: [30, 30]
-    });
-    
-    L.marker([colony.location[0] + 0.002, colony.location[1]], { icon: collectedIcon })
-        .addTo(map)
-        .bindPopup(`
-            <div class="popup-content">
-                <h4>${colony.name}</h4>
-                <p><strong>Collected:</strong> ${colony.collectedHouses} houses</p>
-            </div>
-        `);
-    
-    // Add missed houses if any
-    if (colony.missedHouses > 0) {
-        const missedIcon = L.divIcon({
+// Add house markers to map
+function addHouseMarkers(households) {
+    households.forEach(household => {
+        if (!household.location || !Array.isArray(household.location) || household.location.length !== 2) {
+            console.warn('Invalid household location:', household.location);
+            return;
+        }
+
+        const iconColor = household.status === 'collected' ? '#10b981' : household.status === 'missed' ? '#ef4444' : '#f59e0b';
+        const icon = L.divIcon({
             className: 'custom-marker',
-            html: `<div style="background: #ef4444; color: white; padding: 4px 8px; 
-                    border-radius: 4px; font-size: 12px; font-weight: bold;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                    ${colony.missedHouses}
+            html: `<div style="background: ${iconColor}; color: white; padding: 6px; 
+                    border-radius: 50%; width: 24px; height: 24px; 
+                    display: flex; align-items: center; justify-content: center; 
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 10px; font-weight: bold;">
+                    <i class="fas fa-home"></i>
                   </div>`,
-            iconSize: [30, 30]
+            iconSize: [24, 24]
         });
-        
-        L.marker([colony.location[0] - 0.002, colony.location[1]], { icon: missedIcon })
+
+        const marker = L.marker(household.location, { icon })
             .addTo(map)
             .bindPopup(`
                 <div class="popup-content">
-                    <h4>${colony.name}</h4>
-                    <p><strong>Missed:</strong> ${colony.missedHouses} houses</p>
+                    <h4>${household.name}</h4>
+                    <p><strong>Address:</strong> ${household.address}</p>
+                    <p><strong>Zone:</strong> ${household.zone}</p>
+                    <p><strong>Status:</strong> <span style="color: ${iconColor};">${household.status.toUpperCase()}</span></p>
+                    <p><strong>Waste:</strong> ${household.waste} kg</p>
+                    <p><strong>Phone:</strong> ${household.phone}</p>
                 </div>
             `);
-    }
+
+        markers.houses.push({ id: household.id, marker, data: household });
+    });
 }
 
 // Update map markers after data loading
@@ -627,12 +619,10 @@ function updateMapMarkers() {
         fitMapToTrucks();
     }
 
-    // Add colony markers
-    if (coloniesData && coloniesData.length > 0) {
-        console.log('Adding colony markers:', coloniesData.length);
-        coloniesData.forEach(colony => {
-            addColonyMarker(colony);
-        });
+    // Add house markers
+    if (householdsData && householdsData.length > 0) {
+        console.log('Adding house markers:', householdsData.length);
+        addHouseMarkers(householdsData);
     }
 }
 

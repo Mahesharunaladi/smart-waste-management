@@ -1,8 +1,11 @@
 // Check authentication on page load
+// Temporarily disabled for testing
+/*
 if (!localStorage.getItem('token')) {
     // No token found, redirect to login
     window.location.href = 'login.html';
 }
+*/
 
 // Initialize Map
 let map;
@@ -22,10 +25,17 @@ const API_BASE = 'http://localhost:3001/api';
 // Get auth headers
 function getAuthHeaders() {
     const token = localStorage.getItem('token');
-    return {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-    };
+    if (token) {
+        return {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        };
+    } else {
+        // Return basic headers for testing without auth
+        return {
+            'Content-Type': 'application/json'
+        };
+    }
 }
 
 // Load data from API
@@ -43,7 +53,7 @@ async function loadData() {
                 truckNumber: truck.truckId, // Assuming truckId is the registration
                 registrationNumber: truck.truckId,
                 status: truck.status,
-                location: truck.location?.coordinates || [12.3051, 76.6553], // Default Mysuru
+                location: truck.location?.coordinates ? [truck.location.coordinates[1], truck.location.coordinates[0]] : [12.3051, 76.6553], // Reverse to [lat, lng]
                 wasteCollected: truck.totalWasteCollectedToday || 0,
                 currentColony: truck.route?.zone || 'Unknown',
                 driver: truck.driver?.name || 'Unknown',
@@ -63,7 +73,7 @@ async function loadData() {
                 name: household.name,
                 address: household.address?.street || 'Unknown',
                 zone: household.address?.zone || 'Unknown',
-                location: household.location?.coordinates || [12.2958, 76.6394], // Default Mysore center
+                location: household.location?.coordinates ? [household.location.coordinates[1], household.location.coordinates[0]] : [12.2958, 76.6394], // Reverse to [lat, lng]
                 status: household.status === 'compliant' ? 'collected' : household.status === 'missed' ? 'missed' : 'pending',
                 waste: household.wasteData?.todayWaste || 0,
                 phone: household.contact?.phone || 'N/A'
@@ -196,64 +206,73 @@ function loadSampleData() {
             id: 'C001',
             name: 'Jayanagar Colony',
             location: [12.3051, 76.6553],
-            totalHouses: 150,
-            collectedHouses: 135,
-            missedHouses: 15,
-            wasteCollected: 245,
+            totalHouses: 7,
+            collectedHouses: 3,
+            missedHouses: 2,
+            pendingHouses: 2,
+            wasteCollected: 6.5,
             households: [
                 { id: 'H001', address: 'House #12, 1st Main', status: 'collected', waste: 2.5 },
                 { id: 'H002', address: 'House #15, 1st Main', status: 'collected', waste: 2.2 },
                 { id: 'H003', address: 'House #18, 2nd Cross', status: 'missed', waste: 0 },
                 { id: 'H004', address: 'House #21, 2nd Cross', status: 'collected', waste: 1.8 },
-                { id: 'H005', address: 'House #25, 3rd Main', status: 'missed', waste: 0 }
+                { id: 'H005', address: 'House #25, 3rd Main', status: 'missed', waste: 0 },
+                { id: 'H006', address: 'House #30, 4th Main', status: 'pending', waste: 0 },
+                { id: 'H007', address: 'House #35, 5th Cross', status: 'pending', waste: 0 }
             ]
         },
         {
             id: 'C002',
             name: 'Kuvempunagar Colony',
             location: [12.3110, 76.6590],
-            totalHouses: 200,
-            collectedHouses: 185,
-            missedHouses: 15,
-            wasteCollected: 189,
+            totalHouses: 6,
+            collectedHouses: 3,
+            missedHouses: 2,
+            pendingHouses: 1,
+            wasteCollected: 8.4,
             households: [
                 { id: 'H011', address: 'House #5, Block A', status: 'collected', waste: 2.1 },
                 { id: 'H012', address: 'House #8, Block A', status: 'collected', waste: 2.8 },
                 { id: 'H013', address: 'House #12, Block B', status: 'missed', waste: 0 },
                 { id: 'H014', address: 'House #15, Block B', status: 'collected', waste: 3.5 },
-                { id: 'H015', address: 'House #20, Block C', status: 'missed', waste: 0 }
+                { id: 'H015', address: 'House #20, Block C', status: 'missed', waste: 0 },
+                { id: 'H016', address: 'House #25, Block D', status: 'pending', waste: 0 }
             ]
         },
         {
             id: 'C003',
             name: 'Vijayanagar Colony',
             location: [12.3200, 76.6450],
-            totalHouses: 180,
-            collectedHouses: 165,
-            missedHouses: 15,
-            wasteCollected: 312,
+            totalHouses: 6,
+            collectedHouses: 3,
+            missedHouses: 2,
+            pendingHouses: 1,
+            wasteCollected: 10.2,
             households: [
                 { id: 'H021', address: 'House #3, MG Road', status: 'collected', waste: 4.2 },
                 { id: 'H022', address: 'House #7, MG Road', status: 'collected', waste: 3.1 },
                 { id: 'H023', address: 'House #11, KC Road', status: 'missed', waste: 0 },
                 { id: 'H024', address: 'House #14, KC Road', status: 'collected', waste: 2.9 },
-                { id: 'H025', address: 'House #18, JC Road', status: 'missed', waste: 0 }
+                { id: 'H025', address: 'House #18, JC Road', status: 'missed', waste: 0 },
+                { id: 'H026', address: 'House #22, LC Road', status: 'pending', waste: 0 }
             ]
         },
         {
             id: 'C004',
             name: 'Saraswathipuram Colony',
             location: [12.2980, 76.6410],
-            totalHouses: 120,
-            collectedHouses: 110,
-            missedHouses: 10,
-            wasteCollected: 178,
+            totalHouses: 6,
+            collectedHouses: 3,
+            missedHouses: 2,
+            pendingHouses: 1,
+            wasteCollected: 9.1,
             households: [
                 { id: 'H031', address: 'House #9, Main Road', status: 'collected', waste: 2.3 },
                 { id: 'H032', address: 'House #13, 1st Cross', status: 'collected', waste: 2.7 },
                 { id: 'H033', address: 'House #16, 2nd Cross', status: 'missed', waste: 0 },
                 { id: 'H034', address: 'House #22, 3rd Cross', status: 'collected', waste: 3.4 },
-                { id: 'H035', address: 'House #28, 4th Main', status: 'missed', waste: 0 }
+                { id: 'H035', address: 'House #28, 4th Main', status: 'missed', waste: 0 },
+                { id: 'H036', address: 'House #32, 5th Cross', status: 'pending', waste: 0 }
             ]
         }
     ];
@@ -264,21 +283,26 @@ function loadSampleData() {
         { id: 'H003', name: 'Kumar Residence', address: 'House #18, 2nd Cross', zone: 'Jayanagar', location: [12.3049, 76.6551], status: 'missed', waste: 0, phone: '9876543216' },
         { id: 'H004', name: 'Lakshmi House', address: 'House #21, 2nd Cross', zone: 'Jayanagar', location: [12.3055, 76.6557], status: 'collected', waste: 1.8, phone: '9876543217' },
         { id: 'H005', name: 'Venkatesh Home', address: 'House #25, 3rd Main', zone: 'Jayanagar', location: [12.3047, 76.6549], status: 'missed', waste: 0, phone: '9876543218' },
-        { id: 'H011', name: 'Sharma Family', address: 'House #5, Block A', zone: 'Kuvempunagar', location: [12.3110, 76.6590], status: 'collected', waste: 2.1, phone: '9876543219' },
-        { id: 'H012', name: 'Patel Household', address: 'House #8, Block A', zone: 'Kuvempunagar', location: [12.3112, 76.6592], status: 'collected', waste: 2.8, phone: '9876543220' },
-        { id: 'H013', name: 'Gupta Residence', address: 'House #12, Block B', zone: 'Kuvempunagar', location: [12.3108, 76.6588], status: 'missed', waste: 0, phone: '9876543221' },
-        { id: 'H014', name: 'Singh Family', address: 'House #15, Block B', zone: 'Kuvempunagar', location: [12.3114, 76.6594], status: 'collected', waste: 3.5, phone: '9876543222' },
-        { id: 'H015', name: 'Mehta House', address: 'House #20, Block C', zone: 'Kuvempunagar', location: [12.3106, 76.6586], status: 'missed', waste: 0, phone: '9876543223' },
-        { id: 'H021', name: 'Krishna Home', address: 'House #3, MG Road', zone: 'Vijayanagar', location: [12.3200, 76.6450], status: 'collected', waste: 4.2, phone: '9876543224' },
-        { id: 'H022', name: 'Radha Residence', address: 'House #7, MG Road', zone: 'Vijayanagar', location: [12.3202, 76.6452], status: 'collected', waste: 3.1, phone: '9876543225' },
-        { id: 'H023', name: 'Bharath House', address: 'House #11, KC Road', zone: 'Vijayanagar', location: [12.3198, 76.6448], status: 'missed', waste: 0, phone: '9876543226' },
-        { id: 'H024', name: 'Arjun Family', address: 'House #14, KC Road', zone: 'Vijayanagar', location: [12.3204, 76.6454], status: 'collected', waste: 2.9, phone: '9876543227' },
-        { id: 'H025', name: 'Kavya Home', address: 'House #18, JC Road', zone: 'Vijayanagar', location: [12.3196, 76.6446], status: 'missed', waste: 0, phone: '9876543228' },
-        { id: 'H031', name: 'Ravi Kumar', address: 'House #9, Main Road', zone: 'Saraswathipuram', location: [12.2980, 76.6410], status: 'collected', waste: 2.3, phone: '9876543229' },
-        { id: 'H032', name: 'Anita Sharma', address: 'House #13, 1st Cross', zone: 'Saraswathipuram', location: [12.2982, 76.6412], status: 'collected', waste: 2.7, phone: '9876543230' },
-        { id: 'H033', name: 'Mohan Lal', address: 'House #16, 2nd Cross', zone: 'Saraswathipuram', location: [12.2978, 76.6408], status: 'missed', waste: 0, phone: '9876543231' },
-        { id: 'H034', name: 'Sunita Devi', address: 'House #22, 3rd Cross', zone: 'Saraswathipuram', location: [12.2984, 76.6414], status: 'collected', waste: 3.4, phone: '9876543232' },
-        { id: 'H035', name: 'Rajendra Prasad', address: 'House #28, 4th Main', zone: 'Saraswathipuram', location: [12.2976, 76.6406], status: 'missed', waste: 0, phone: '9876543233' }
+        { id: 'H006', name: 'Suresh Villa', address: 'House #30, 4th Main', zone: 'Jayanagar', location: [12.3059, 76.6559], status: 'pending', waste: 0, phone: '9876543219' },
+        { id: 'H007', name: 'Meera Cottage', address: 'House #35, 5th Cross', zone: 'Jayanagar', location: [12.3045, 76.6547], status: 'pending', waste: 0, phone: '9876543220' },
+        { id: 'H011', name: 'Sharma Family', address: 'House #5, Block A', zone: 'Kuvempunagar', location: [12.3110, 76.6590], status: 'collected', waste: 2.1, phone: '9876543221' },
+        { id: 'H012', name: 'Patel Household', address: 'House #8, Block A', zone: 'Kuvempunagar', location: [12.3112, 76.6592], status: 'collected', waste: 2.8, phone: '9876543222' },
+        { id: 'H013', name: 'Gupta Residence', address: 'House #12, Block B', zone: 'Kuvempunagar', location: [12.3108, 76.6588], status: 'missed', waste: 0, phone: '9876543223' },
+        { id: 'H014', name: 'Singh Family', address: 'House #15, Block B', zone: 'Kuvempunagar', location: [12.3114, 76.6594], status: 'collected', waste: 3.5, phone: '9876543224' },
+        { id: 'H015', name: 'Mehta House', address: 'House #20, Block C', zone: 'Kuvempunagar', location: [12.3106, 76.6586], status: 'missed', waste: 0, phone: '9876543225' },
+        { id: 'H016', name: 'Verma Mansion', address: 'House #25, Block D', zone: 'Kuvempunagar', location: [12.3116, 76.6596], status: 'pending', waste: 0, phone: '9876543226' },
+        { id: 'H021', name: 'Krishna Home', address: 'House #3, MG Road', zone: 'Vijayanagar', location: [12.3200, 76.6450], status: 'collected', waste: 4.2, phone: '9876543227' },
+        { id: 'H022', name: 'Radha Residence', address: 'House #7, MG Road', zone: 'Vijayanagar', location: [12.3202, 76.6452], status: 'collected', waste: 3.1, phone: '9876543228' },
+        { id: 'H023', name: 'Bharath House', address: 'House #11, KC Road', zone: 'Vijayanagar', location: [12.3198, 76.6448], status: 'missed', waste: 0, phone: '9876543229' },
+        { id: 'H024', name: 'Arjun Family', address: 'House #14, KC Road', zone: 'Vijayanagar', location: [12.3204, 76.6454], status: 'collected', waste: 2.9, phone: '9876543230' },
+        { id: 'H025', name: 'Kavya Home', address: 'House #18, JC Road', zone: 'Vijayanagar', location: [12.3196, 76.6446], status: 'missed', waste: 0, phone: '9876543231' },
+        { id: 'H026', name: 'Rama Villa', address: 'House #22, LC Road', zone: 'Vijayanagar', location: [12.3206, 76.6456], status: 'pending', waste: 0, phone: '9876543232' },
+        { id: 'H031', name: 'Ravi Kumar', address: 'House #9, Main Road', zone: 'Saraswathipuram', location: [12.2980, 76.6410], status: 'collected', waste: 2.3, phone: '9876543233' },
+        { id: 'H032', name: 'Anita Sharma', address: 'House #13, 1st Cross', zone: 'Saraswathipuram', location: [12.2982, 76.6412], status: 'collected', waste: 2.7, phone: '9876543234' },
+        { id: 'H033', name: 'Mohan Lal', address: 'House #16, 2nd Cross', zone: 'Saraswathipuram', location: [12.2978, 76.6408], status: 'missed', waste: 0, phone: '9876543235' },
+        { id: 'H034', name: 'Sunita Devi', address: 'House #22, 3rd Cross', zone: 'Saraswathipuram', location: [12.2984, 76.6414], status: 'collected', waste: 3.4, phone: '9876543236' },
+        { id: 'H035', name: 'Rajendra Prasad', address: 'House #28, 4th Main', zone: 'Saraswathipuram', location: [12.2976, 76.6406], status: 'missed', waste: 0, phone: '9876543237' },
+        { id: 'H036', name: 'Kiran House', address: 'House #32, 5th Cross', zone: 'Saraswathipuram', location: [12.2986, 76.6416], status: 'pending', waste: 0, phone: '9876543238' }
     ];
 }
 
@@ -311,6 +335,17 @@ const recentActivities = [
 
 // Initialize Dashboard
 function initDashboard() {
+    // Wait for DOM to be fully loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDashboard();
+        });
+    } else {
+        initializeDashboard();
+    }
+}
+
+function initializeDashboard() {
     updateStats();
     renderTrucks();
     renderColonies();
@@ -319,11 +354,14 @@ function initDashboard() {
     setupSidebarNavigation();
     setupMapControls();
     
-    // Initialize map with proper timing - wait a bit for DOM to be fully rendered
+    // Load initial data first
+    loadData();
+    
+    // Initialize map after a delay to allow data loading
     setTimeout(() => {
         initMap();
-        console.log('Map initialization scheduled after DOM layout');
-    }, 100);
+        console.log('Map initialization after data loading delay');
+    }, 1000);
     
     // Live truck tracking - update every 5 seconds
     setInterval(async () => {
@@ -339,6 +377,21 @@ function initDashboard() {
         renderWasteChart();
     }, 30000);
 }
+    
+    // Live truck tracking - update every 5 seconds
+    setInterval(async () => {
+        await loadData();
+        updateMapMarkers();
+        updateTruckPositions();
+        renderTrucks();
+    }, 5000);
+
+    // Auto-refresh dashboard stats every 30 seconds
+    setInterval(() => {
+        updateStats();
+        renderWasteChart();
+    }, 30000);
+
 
 // Initialize Leaflet Map
 function initMap() {
@@ -350,20 +403,15 @@ function initMap() {
         return;
     }
 
-    // Destroy existing map if it exists
-    if (map) {
-        try {
-            map.remove();
-            map = null;
-        } catch (e) {
-            console.warn('Error removing old map:', e);
-        }
-        markers.trucks = [];
-        markers.houses = [];
-    }
+    // Ensure container has dimensions
+    mapContainer.style.width = '100%';
+    mapContainer.style.height = '500px'; // Explicit height
+    mapContainer.style.minHeight = '400px';
 
     // Check if container has proper dimensions
     const rect = mapContainer.getBoundingClientRect();
+    console.log('Map container dimensions:', rect.width, 'x', rect.height);
+    
     if (rect.width === 0 || rect.height === 0) {
         console.warn('Map container has zero dimensions, waiting for layout...');
         setTimeout(() => {
@@ -376,21 +424,23 @@ function initMap() {
     try {
         console.log('Creating Leaflet map instance...');
         
-        // Simple, proven Leaflet initialization
+        // Create map centered on Mysore
         map = L.map('map').setView([12.2958, 76.6394], 13);
         
         console.log('✅ Map instance created');
 
-        // Add OpenStreetMap tile layer - using the exact proven code
+        // Add OpenStreetMap tile layer
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
         console.log('✅ OpenStreetMap tile layer added');
 
-        // Ensure map is properly sized
-        map.invalidateSize(true);
-        console.log('✅ Map size validated and initialized');
+        // Force map to recalculate size
+        setTimeout(() => {
+            map.invalidateSize();
+            console.log('✅ Map size invalidated and refreshed');
+        }, 100);
         
         // Verify map is working
         console.log('Map center:', map.getCenter());
@@ -403,22 +453,23 @@ function initMap() {
             trucksData.forEach(truck => {
                 addTruckMarker(truck);
             });
-            
-            // Fit all truck markers in view
-            setTimeout(() => {
-                fitMapToTrucks();
-            }, 300);
-        } else {
-            console.log('No truck data available yet, using default view');
         }
 
-        // Add colony markers if data is available
-        if (coloniesData && coloniesData.length > 0) {
-            console.log('Adding colony markers:', coloniesData.length);
-            coloniesData.forEach(colony => {
-                addColonyMarker(colony);
-            });
+        // Add house markers if data is available
+        if (householdsData && householdsData.length > 0) {
+            console.log('Adding house markers:', householdsData.length);
+            addHouseMarkers(householdsData);
         }
+
+        // Fit map to show all markers or default to Mysore
+        setTimeout(() => {
+            if ((markers.trucks && markers.trucks.length > 0) || (markers.houses && markers.houses.length > 0)) {
+                fitMapToAllMarkers();
+            } else {
+                console.log('No markers to fit, setting default Mysore view');
+                map.setView([12.2958, 76.6394], 13);
+            }
+        }, 300);
 
         console.log('✅ Map fully initialized!');
 
@@ -427,10 +478,10 @@ function initMap() {
     }
 }
 
-// Fit map bounds to show all trucks
-function fitMapToTrucks() {
-    if (!map || !markers.trucks || markers.trucks.length === 0) {
-        console.log('Cannot fit map - no trucks or map not ready');
+// Fit map bounds to show all markers (trucks and houses)
+function fitMapToAllMarkers() {
+    if (!map) {
+        console.log('Cannot fit map - map not ready');
         return;
     }
     
@@ -438,6 +489,7 @@ function fitMapToTrucks() {
         const bounds = L.latLngBounds();
         let hasValidBounds = false;
         
+        // Add truck markers to bounds
         markers.trucks.forEach(truckMarker => {
             const latlng = truckMarker.marker.getLatLng();
             if (latlng) {
@@ -446,14 +498,24 @@ function fitMapToTrucks() {
             }
         });
         
+        // Add house markers to bounds
+        markers.houses.forEach(houseMarker => {
+            const latlng = houseMarker.marker.getLatLng();
+            if (latlng) {
+                bounds.extend(latlng);
+                hasValidBounds = true;
+            }
+        });
+        
         if (hasValidBounds && bounds.isValid()) {
             map.fitBounds(bounds, { 
-                padding: [50, 50],
-                maxZoom: 15
+                padding: [20, 20],
+                maxZoom: 16
             });
-            console.log('✅ Map fitted to show all trucks');
+            console.log('✅ Map fitted to show all markers');
         } else {
-            console.log('No valid bounds to fit');
+            console.log('No valid bounds to fit, using default Mysore view');
+            map.setView([12.2958, 76.6394], 13);
         }
     } catch (error) {
         console.error('Error fitting map bounds:', error);
@@ -546,14 +608,37 @@ function addHouseMarkers(households) {
             return;
         }
 
-        const iconColor = household.status === 'collected' ? '#10b981' : household.status === 'missed' ? '#ef4444' : '#f59e0b';
+        // Define colors based on status
+        let iconColor, statusText, statusIcon;
+        switch (household.status) {
+            case 'collected':
+                iconColor = '#10b981'; // Green
+                statusText = 'Collected';
+                statusIcon = 'fa-check-circle';
+                break;
+            case 'missed':
+                iconColor = '#ef4444'; // Red
+                statusText = 'Missed';
+                statusIcon = 'fa-exclamation-triangle';
+                break;
+            case 'pending':
+                iconColor = '#eab308'; // Yellow
+                statusText = 'Pending';
+                statusIcon = 'fa-clock';
+                break;
+            default:
+                iconColor = '#6b7280'; // Gray
+                statusText = 'Unknown';
+                statusIcon = 'fa-question-circle';
+        }
+
         const icon = L.divIcon({
             className: 'custom-marker',
             html: `<div style="background: ${iconColor}; color: white; padding: 6px; 
                     border-radius: 50%; width: 24px; height: 24px; 
                     display: flex; align-items: center; justify-content: center; 
                     box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 10px; font-weight: bold;">
-                    <i class="fas fa-home"></i>
+                    <i class="fas ${statusIcon}"></i>
                   </div>`,
             iconSize: [24, 24]
         });
@@ -561,13 +646,19 @@ function addHouseMarkers(households) {
         const marker = L.marker(household.location, { icon })
             .addTo(map)
             .bindPopup(`
-                <div class="popup-content">
-                    <h4>${household.name}</h4>
-                    <p><strong>Address:</strong> ${household.address}</p>
-                    <p><strong>Zone:</strong> ${household.zone}</p>
-                    <p><strong>Status:</strong> <span style="color: ${iconColor};">${household.status.toUpperCase()}</span></p>
-                    <p><strong>Waste:</strong> ${household.waste} kg</p>
-                    <p><strong>Phone:</strong> ${household.phone}</p>
+                <div class="popup-content" style="min-width: 250px;">
+                    <h4 style="margin-bottom: 8px; color: ${iconColor};">
+                        <i class="fas ${statusIcon}"></i> ${household.name}
+                    </h4>
+                    <div style="display: grid; gap: 4px; font-size: 14px;">
+                        <p><strong>ID:</strong> ${household.id}</p>
+                        <p><strong>Address:</strong> ${household.address}</p>
+                        <p><strong>Zone:</strong> ${household.zone}</p>
+                        <p><strong>Status:</strong> <span style="color: ${iconColor}; font-weight: bold;">${statusText}</span></p>
+                        <p><strong>Waste Today:</strong> ${household.waste} kg</p>
+                        <p><strong>Phone:</strong> ${household.phone}</p>
+                        <p><strong>Last Collection:</strong> ${household.status === 'collected' ? 'Today' : 'Pending'}</p>
+                    </div>
                 </div>
             `);
 
@@ -614,9 +705,6 @@ function updateMapMarkers() {
         trucksData.forEach(truck => {
             addTruckMarker(truck);
         });
-        
-        // Fit map to trucks
-        fitMapToTrucks();
     }
 
     // Add house markers
@@ -624,6 +712,9 @@ function updateMapMarkers() {
         console.log('Adding house markers:', householdsData.length);
         addHouseMarkers(householdsData);
     }
+
+    // Fit map to all markers
+    fitMapToAllMarkers();
 }
 
 // Update Statistics
@@ -1042,13 +1133,13 @@ window.closeModal = function() {
 // Filter map view - Make it globally accessible
 window.filterMap = function(filter) {
     console.log('Filtering map:', filter);
-    // Implement filter logic here - placeholder behavior
+    // Implement filter logic here
     if (!map) {
         console.warn('Map not initialized yet - filter deferred');
         return;
     }
 
-    // Example: adjust marker visibility based on truck status
+    // Filter truck markers
     if (filter === 'all') {
         markers.trucks.forEach(t => t.marker.addTo(map));
     } else if (filter === 'active') {
@@ -1059,9 +1150,27 @@ window.filterMap = function(filter) {
         markers.trucks.forEach(t => {
             if (t.data.status === 'idle') t.marker.addTo(map); else map.removeLayer(t.marker);
         });
+    } else {
+        // For house-specific filters, hide all trucks
+        markers.trucks.forEach(t => map.removeLayer(t.marker));
+    }
+
+    // Filter house markers
+    if (filter === 'collected') {
+        markers.houses.forEach(h => {
+            if (h.data.status === 'collected') h.marker.addTo(map); else map.removeLayer(h.marker);
+        });
+    } else if (filter === 'pending') {
+        markers.houses.forEach(h => {
+            if (h.data.status === 'pending') h.marker.addTo(map); else map.removeLayer(h.marker);
+        });
     } else if (filter === 'missed') {
-        // show all colony missed markers — no-op for now
-        console.log('Missed filter selected - highlighting colonies');
+        markers.houses.forEach(h => {
+            if (h.data.status === 'missed') h.marker.addTo(map); else map.removeLayer(h.marker);
+        });
+    } else {
+        // For 'all', 'active', 'idle' filters, show all houses
+        markers.houses.forEach(h => h.marker.addTo(map));
     }
 
     console.log('Filter applied:', filter);

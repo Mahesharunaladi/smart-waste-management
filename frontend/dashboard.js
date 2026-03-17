@@ -1,14 +1,8 @@
 // Check authentication on page load
-(function checkAuth() {
-    const token = localStorage.getItem('token');
-    console.log('Checking authentication, token:', token ? 'present' : 'not found');
-    if (!token) {
-        console.log('No token found, redirecting to login');
-        // Temporarily comment out redirect for debugging
-        // window.location.href = 'login.html';
-        // return;
-    }
-})();
+if (!localStorage.getItem('token')) {
+    // No token found, redirect to login
+    window.location.href = 'login.html';
+}
 
 // Initialize Map
 let map;
@@ -27,13 +21,6 @@ const API_BASE = 'http://localhost:3001/api';
 // Get auth headers
 function getAuthHeaders() {
     const token = localStorage.getItem('token');
-    console.log('Getting auth headers, token exists:', !!token);
-    if (!token) {
-        console.warn('No token found, API calls may fail');
-        return {
-            'Content-Type': 'application/json'
-        };
-    }
     return {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -42,26 +29,12 @@ function getAuthHeaders() {
 
 // Load data from API
 async function loadData() {
-    console.log('Starting to load data from API...');
-
-    // First, try to test API connectivity
-    try {
-        console.log('Testing API connectivity...');
-        const testResponse = await fetch(`${API_BASE}/`, { headers: getAuthHeaders() });
-        console.log('API test response status:', testResponse.status);
-    } catch (error) {
-        console.error('API connectivity test failed:', error);
-    }
-
     try {
         // Load trucks
-        console.log('Loading trucks data...');
         const trucksResponse = await fetch(`${API_BASE}/trucks`, {
             headers: getAuthHeaders()
         });
-        console.log('Trucks response status:', trucksResponse.status);
         const trucksResult = await trucksResponse.json();
-        console.log('Trucks API result:', trucksResult);
         if (trucksResult.success) {
             trucksData = trucksResult.trucks.map(truck => ({
                 id: truck.truckId,
@@ -146,23 +119,14 @@ async function loadData() {
     } catch (error) {
         console.error('Error loading data:', error);
         // Fallback to sample data if API fails
-        console.log('Loading sample data due to API error');
         loadSampleData();
     }
 
     // Update map markers if map is already initialized
     updateMapMarkers();
-
-    // Force render after data loading
-    console.log('Forcing render after data load');
-    renderTrucks();
-    renderColonies();
-    renderActivities();
-    renderWasteChart();
 }
 
 function loadSampleData() {
-    console.log('Loading sample data...');
     trucksData = [
         {
             id: 'T001',
@@ -280,7 +244,6 @@ function loadSampleData() {
             ]
         }
     ];
-    console.log('Sample data loaded successfully:', trucksData.length, 'trucks,', coloniesData.length, 'colonies');
 }
 
 const recentActivities = [
@@ -1041,28 +1004,6 @@ function updateTruckPositions() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('DOM content loaded, starting dashboard initialization...');
-    
-    // Check if key elements exist
-    const mapElement = document.getElementById('map');
-    const truckListElement = document.getElementById('truckList');
-    const colonyListElement = document.getElementById('colonyList');
-    
-    console.log('DOM elements check:');
-    console.log('- Map element:', mapElement);
-    console.log('- Truck list element:', truckListElement);
-    console.log('- Colony list element:', colonyListElement);
-    
-    if (!mapElement) console.error('❌ Map element not found!');
-    if (!truckListElement) console.error('❌ Truck list element not found!');
-    if (!colonyListElement) console.error('❌ Colony list element not found!');
-    
-    alert('Dashboard JavaScript is loading... Check console for details!');
-
-    // For debugging, load sample data immediately
-    console.log('Loading sample data for testing...');
-    loadSampleData();
-
     await loadData();
     initDashboard();
 });
@@ -1075,10 +1016,8 @@ window.onclick = function(event) {
     }
 }
 
-// Logout function
 // Logout function - Make it globally accessible
 window.logout = function() {
-    console.log('Logging out...');
     // Clear localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('admin');

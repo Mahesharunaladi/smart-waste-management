@@ -125,6 +125,9 @@ async function loadData() {
         // Fallback to sample data if API fails
         loadSampleData();
     }
+
+    // Update map markers if map is already initialized
+    updateMapMarkers();
 }
 
 function loadSampleData() {
@@ -340,8 +343,6 @@ function initMap() {
     } catch (error) {
         console.error('Error initializing map:', error);
     }
-}
-    });
 }
 
 // Add truck marker to map

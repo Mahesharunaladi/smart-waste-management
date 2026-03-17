@@ -320,6 +320,8 @@ function initMap() {
         console.log('Removing existing map instance');
         map.remove();
         map = null;
+        markers.trucks = [];
+        markers.houses = [];
     }
 
     // Check if container has proper dimensions
@@ -337,33 +339,45 @@ function initMap() {
         console.log('Creating new Leaflet map instance...');
         
         // Create map with proper initialization
-        map = L.map('map', {
+        map = L.map(mapContainer, {
             center: [12.3051, 76.6553],
             zoom: 13,
             zoomControl: true,
-            attributionControl: true
+            attributionControl: true,
+            preferCanvas: true
         });
         
         console.log('✅ Map instance created successfully');
 
-        // Add OpenStreetMap tile layer with proper configuration
-        const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            minZoom: 0,
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            crossOrigin: true
-        });
+        // Add multiple tile layer providers for better reliability
+        const osmTileLayer = L.tileLayer(
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            {
+                minZoom: 0,
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                crossOrigin: 'anonymous',
+                detectRetina: true,
+                tms: false,
+                opacity: 1.0
+            }
+        );
         
-        tileLayer.addTo(map);
+        osmTileLayer.addTo(map);
         console.log('✅ Tile layer added to map');
 
-        // Ensure map is properly sized
+        // Wait for tiles to load
+        map.on('load', function() {
+            console.log('✅ Map tiles loaded successfully');
+        });
+
+        // Ensure map is properly sized after a brief delay
         setTimeout(() => {
             if (map && typeof map.invalidateSize === 'function') {
-                map.invalidateSize();
+                map.invalidateSize(false);
                 console.log('✅ Map size invalidated');
             }
-        }, 100);
+        }, 300);
 
         // Add truck markers if data is available
         if (trucksData && trucksData.length > 0) {
@@ -375,7 +389,7 @@ function initMap() {
             // Fit all truck markers in view
             setTimeout(() => {
                 fitMapToTrucks();
-            }, 200);
+            }, 500);
         } else {
             console.log('No truck data available yet');
         }

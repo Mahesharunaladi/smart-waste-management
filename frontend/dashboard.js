@@ -345,8 +345,86 @@ function initMap() {
     }
 }
 
-// Add truck marker to map
-function addTruckMarker(truck) {
+// Update map markers when data changes
+function updateMapMarkers() {
+    if (!map) {
+        console.log('Map not initialized yet, skipping marker update');
+        return;
+    }
+
+    console.log('Updating map markers...');
+
+    // Clear existing markers
+    map.eachLayer((layer) => {
+        if (layer instanceof L.Marker) {
+            map.removeLayer(layer);
+        }
+    });
+
+    // Add truck markers
+    if (trucksData && trucksData.length > 0) {
+        console.log('Adding truck markers:', trucksData.length);
+        trucksData.forEach(truck => {
+            addTruckMarker(truck);
+        });
+    } else {
+        console.log('No truck data available');
+    }
+
+    // Add colony markers
+    if (coloniesData && coloniesData.length > 0) {
+        coloniesData.forEach(colony => {
+            addColonyMarker(colony);
+        });
+    }
+}
+
+// Update map markers when data changes
+function updateMapMarkers() {
+    if (!map) {
+        console.log('Map not initialized yet, skipping marker update');
+        return;
+    }
+
+    console.log('Updating map markers...');
+
+    // Clear existing markers
+    map.eachLayer((layer) => {
+        if (layer instanceof L.Marker) {
+            map.removeLayer(layer);
+        }
+    });
+
+    // Add truck markers
+    if (trucksData && trucksData.length > 0) {
+        console.log('Adding truck markers:', trucksData.length);
+        trucksData.forEach(truck => {
+            addTruckMarker(truck);
+        });
+    } else {
+        console.log('No truck data available');
+    }
+
+    // Add colony markers
+    if (coloniesData && coloniesData.length > 0) {
+        coloniesData.forEach(colony => {
+            addColonyMarker(colony);
+        });
+    }
+}
+
+    console.log('Adding truck marker for:', truck.name, 'at location:', truck.location);
+
+    if (!map) {
+        console.error('Map not initialized, cannot add truck marker');
+        return;
+    }
+
+    if (!truck.location || !Array.isArray(truck.location) || truck.location.length !== 2) {
+        console.error('Invalid truck location:', truck.location);
+        return;
+    }
+
     const icon = L.divIcon({
         className: 'custom-marker',
         html: `<div style="background: ${truck.status === 'active' ? '#10b981' : '#f59e0b'}; 
@@ -372,6 +450,7 @@ function addTruckMarker(truck) {
             </div>
         `);
     
+    console.log('Truck marker added to map for:', truck.name);
     markers.trucks.push({ id: truck.id, marker, data: truck });
 }
 
@@ -417,6 +496,40 @@ function addColonyMarker(colony) {
                     <p><strong>Missed:</strong> ${colony.missedHouses} houses</p>
                 </div>
             `);
+    }
+}
+
+// Update map markers after data loading
+function updateMapMarkers() {
+    if (!map) {
+        console.log('Map not initialized yet, skipping marker update');
+        return;
+    }
+
+    console.log('Updating map markers...');
+
+    // Clear existing markers
+    markers.trucks.forEach(truckMarker => {
+        map.removeLayer(truckMarker.marker);
+    });
+    markers.trucks = [];
+
+    // Clear existing colony markers (this is a simple approach - in production you'd track them better)
+    // For now, we'll just add new ones and let the old ones be replaced
+
+    // Add truck markers
+    if (trucksData && trucksData.length > 0) {
+        console.log('Adding truck markers:', trucksData.length);
+        trucksData.forEach(truck => {
+            addTruckMarker(truck);
+        });
+    }
+
+    // Add colony markers
+    if (coloniesData && coloniesData.length > 0) {
+        coloniesData.forEach(colony => {
+            addColonyMarker(colony);
+        });
     }
 }
 

@@ -231,6 +231,7 @@ body {
     gap: 1.5rem;
     padding: 0 2rem 2rem;
     overflow: hidden;
+    min-height: 0;
 }
 
 /* Map Section */
@@ -242,6 +243,8 @@ body {
     flex-direction: column;
     overflow: hidden;
     position: relative;
+    min-height: 0;
+    height: 100%;
 }
 
 .map-header {

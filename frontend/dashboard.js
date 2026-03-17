@@ -310,20 +310,22 @@ function initMap() {
     console.log('Initializing map...');
 
     const mapContainer = document.getElementById('map');
-    console.log('Map container element:', mapContainer);
     if (!mapContainer) {
         console.error('Map container not found!');
         return;
     }
 
-    // Check if container is visible
-    const rect = mapContainer.getBoundingClientRect();
-    console.log('Map container rect:', rect);
-    console.log('Map container dimensions:', mapContainer.offsetWidth, 'x', mapContainer.offsetHeight);
+    // Destroy existing map if it exists
+    if (map && typeof map.remove === 'function') {
+        console.log('Removing existing map instance');
+        map.remove();
+        map = null;
+    }
 
+    // Check if container has proper dimensions
+    const rect = mapContainer.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) {
         console.warn('Map container has zero dimensions, waiting for layout...');
-        // Try again after a short delay
         setTimeout(() => {
             console.log('Retrying map initialization...');
             initMap();
@@ -332,16 +334,36 @@ function initMap() {
     }
 
     try {
-        console.log('Creating Leaflet map...');
-        map = L.map('map').setView([12.3051, 76.6553], 13);
-        console.log('Map object created:', map);
+        console.log('Creating new Leaflet map instance...');
+        
+        // Create map with proper initialization
+        map = L.map('map', {
+            center: [12.3051, 76.6553],
+            zoom: 13,
+            zoomControl: true,
+            attributionControl: true
+        });
+        
+        console.log('✅ Map instance created successfully');
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-        console.log('Tile layer added to map');
+        // Add OpenStreetMap tile layer with proper configuration
+        const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            minZoom: 0,
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            crossOrigin: true
+        });
+        
+        tileLayer.addTo(map);
+        console.log('✅ Tile layer added to map');
 
-        console.log('Map initialized successfully - you should see the map now!');
+        // Ensure map is properly sized
+        setTimeout(() => {
+            if (map && typeof map.invalidateSize === 'function') {
+                map.invalidateSize();
+                console.log('✅ Map size invalidated');
+            }
+        }, 100);
 
         // Add truck markers if data is available
         if (trucksData && trucksData.length > 0) {
@@ -351,38 +373,58 @@ function initMap() {
             });
             
             // Fit all truck markers in view
-            fitMapToTrucks();
+            setTimeout(() => {
+                fitMapToTrucks();
+            }, 200);
         } else {
             console.log('No truck data available yet');
         }
 
         // Add colony markers if data is available
         if (coloniesData && coloniesData.length > 0) {
+            console.log('Adding colony markers:', coloniesData.length);
             coloniesData.forEach(colony => {
                 addColonyMarker(colony);
             });
         }
 
+        console.log('✅ Map initialized successfully!');
+
     } catch (error) {
-        console.error('Error initializing map:', error);
+        console.error('❌ Error initializing map:', error);
     }
 }
 
 // Fit map bounds to show all trucks
 function fitMapToTrucks() {
     if (!map || !markers.trucks || markers.trucks.length === 0) {
-        console.log('Cannot fit map - no trucks to display');
+        console.log('Cannot fit map - no trucks or map not ready');
         return;
     }
     
-    const bounds = L.latLngBounds();
-    markers.trucks.forEach(truckMarker => {
-        bounds.extend(truckMarker.marker.getLatLng());
-    });
-    
-    if (bounds.isValid()) {
-        map.fitBounds(bounds, { padding: [50, 50] });
-        console.log('✅ Map fitted to show all trucks');
+    try {
+        const bounds = L.latLngBounds();
+        let hasValidBounds = false;
+        
+        markers.trucks.forEach(truckMarker => {
+            const latlng = truckMarker.marker.getLatLng();
+            if (latlng) {
+                bounds.extend(latlng);
+                hasValidBounds = true;
+            }
+        });
+        
+        if (hasValidBounds && bounds.isValid()) {
+            map.fitBounds(bounds, { 
+                padding: [50, 50],
+                maxZoom: 15
+            });
+            console.log('✅ Map fitted to show all trucks');
+        } else {
+            console.log('No valid bounds to fit');
+        }
+    } catch (error) {
+        console.error('Error fitting map bounds:', error);
     }
 }
 
@@ -408,6 +450,9 @@ function updateMapMarkers() {
         trucksData.forEach(truck => {
             addTruckMarker(truck);
         });
+        
+        // Fit all trucks in view
+        fitMapToTrucks();
     } else {
         console.log('No truck data available');
     }

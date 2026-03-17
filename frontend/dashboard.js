@@ -1026,4 +1026,4 @@ window.logout = function() {
     
     // Redirect to home page
     window.location.href = 'index.html';
-
+}

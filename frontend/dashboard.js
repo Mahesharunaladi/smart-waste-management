@@ -304,20 +304,43 @@ function initDashboard() {
 
 // Initialize Leaflet Map
 function initMap() {
-    map = L.map('map').setView([12.3051, 76.6553], 13);
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-    
-    // Add truck markers
-    trucksData.forEach(truck => {
-        addTruckMarker(truck);
-    });
-    
-    // Add colony markers
-    coloniesData.forEach(colony => {
-        addColonyMarker(colony);
+    console.log('Initializing map...');
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) {
+        console.error('Map container not found!');
+        return;
+    }
+
+    try {
+        map = L.map('map').setView([12.3051, 76.6553], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        console.log('Map initialized successfully');
+
+        // Add truck markers if data is available
+        if (trucksData && trucksData.length > 0) {
+            console.log('Adding truck markers:', trucksData.length);
+            trucksData.forEach(truck => {
+                addTruckMarker(truck);
+            });
+        } else {
+            console.log('No truck data available yet');
+        }
+
+        // Add colony markers if data is available
+        if (coloniesData && coloniesData.length > 0) {
+            coloniesData.forEach(colony => {
+                addColonyMarker(colony);
+            });
+        }
+
+    } catch (error) {
+        console.error('Error initializing map:', error);
+    }
+}
     });
 }
 

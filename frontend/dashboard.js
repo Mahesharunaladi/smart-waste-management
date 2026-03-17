@@ -399,6 +399,47 @@ function updateMapMarkers() {
     }
 }
 
+// Add truck marker to map
+function addTruckMarker(truck) {
+    if (!map) {
+        console.error('Map not initialized, cannot add truck marker');
+        return;
+    }
+
+    if (!truck.location || !Array.isArray(truck.location) || truck.location.length !== 2) {
+        console.error('Invalid truck location:', truck.location);
+        return;
+    }
+
+    const icon = L.divIcon({
+        className: 'custom-marker',
+        html: `<div style="background: ${truck.status === 'active' ? '#10b981' : '#f59e0b'}; 
+                color: white; padding: 8px; border-radius: 50%; width: 40px; height: 40px; 
+                display: flex; align-items: center; justify-content: center; 
+                box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                <i class="fas fa-truck"></i>
+              </div>`,
+        iconSize: [40, 40]
+    });
+    
+    const marker = L.marker(truck.location, { icon })
+        .addTo(map)
+        .bindPopup(`
+            <div class="popup-content">
+                <h4>${truck.name} - ${truck.status.toUpperCase()}</h4>
+                <p><strong>Truck Number:</strong> ${truck.truckNumber}</p>
+                <p><strong>Registration:</strong> ${truck.registrationNumber}</p>
+                <p><strong>Driver:</strong> ${truck.driver}</p>
+                <p><strong>Driver Phone:</strong> ${truck.driverPhone}</p>
+                <p><strong>Location:</strong> ${truck.currentColony}</p>
+                <p><strong>Waste Collected:</strong> ${truck.wasteCollected} kg</p>
+            </div>
+        `);
+    
+    console.log('Truck marker added to map for:', truck.name);
+    markers.trucks.push({ id: truck.id, marker, data: truck });
+}
+
 // Update map markers when data changes
 function updateMapMarkers() {
     if (!map) {

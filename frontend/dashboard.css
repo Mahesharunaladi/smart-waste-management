@@ -299,14 +299,29 @@ body {
     min-height: 400px;
     width: 100%;
     position: relative;
-    background: #e5e3df;
+    background: #fff;
     z-index: 1;
+    border: none;
 }
 
 /* Ensure Leaflet map is properly rendered */
 .leaflet-container {
-    background: #e5e3df;
+    background: #fff;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    height: 100%;
+    width: 100%;
+}
+
+.leaflet-tile {
+    image-rendering: optimizeSpeed;
+}
+
+.leaflet-tile-pane {
+    z-index: 2;
+}
+
+.leaflet-overlay-pane {
+    z-index: 7;
 }
 
 .leaflet-tile {

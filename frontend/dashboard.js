@@ -316,10 +316,13 @@ function initMap() {
     }
 
     // Destroy existing map if it exists
-    if (map && typeof map.remove === 'function') {
-        console.log('Removing existing map instance');
-        map.remove();
-        map = null;
+    if (map) {
+        try {
+            map.remove();
+            map = null;
+        } catch (e) {
+            console.warn('Error removing old map:', e);
+        }
         markers.trucks = [];
         markers.houses = [];
     }
@@ -336,48 +339,43 @@ function initMap() {
     }
 
     try {
-        console.log('Creating new Leaflet map instance...');
+        console.log('Creating Leaflet map instance...');
         
-        // Create map with proper initialization
-        map = L.map(mapContainer, {
-            center: [12.3051, 76.6553],
-            zoom: 13,
-            zoomControl: true,
-            attributionControl: true,
-            preferCanvas: true
-        });
+        // Clear any Leaflet remnants
+        mapContainer.innerHTML = '';
         
-        console.log('✅ Map instance created successfully');
+        // Create map instance
+        map = L.map(mapContainer);
+        map.setView([12.3051, 76.6553], 13);
+        
+        console.log('✅ Map instance created');
 
-        // Add multiple tile layer providers for better reliability
-        const osmTileLayer = L.tileLayer(
+        // Add CartoDB Positron tile layer (most reliable)
+        const cartodb = L.tileLayer(
+            'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+            {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 20,
+                minZoom: 0
+            }
+        ).addTo(map);
+        
+        console.log('✅ CartoDB tile layer added');
+
+        // Add fallback OpenStreetMap layer
+        const osmLayer = L.tileLayer(
             'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             {
-                minZoom: 0,
-                maxZoom: 19,
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                crossOrigin: 'anonymous',
-                detectRetina: true,
-                tms: false,
-                opacity: 1.0
+                maxZoom: 19,
+                minZoom: 0
             }
         );
-        
-        osmTileLayer.addTo(map);
-        console.log('✅ Tile layer added to map');
 
-        // Wait for tiles to load
-        map.on('load', function() {
-            console.log('✅ Map tiles loaded successfully');
-        });
-
-        // Ensure map is properly sized after a brief delay
-        setTimeout(() => {
-            if (map && typeof map.invalidateSize === 'function') {
-                map.invalidateSize(false);
-                console.log('✅ Map size invalidated');
-            }
-        }, 300);
+        // Ensure map is properly sized
+        map.invalidateSize(true);
+        console.log('✅ Map size validated');
 
         // Add truck markers if data is available
         if (trucksData && trucksData.length > 0) {
@@ -389,7 +387,7 @@ function initMap() {
             // Fit all truck markers in view
             setTimeout(() => {
                 fitMapToTrucks();
-            }, 500);
+            }, 800);
         } else {
             console.log('No truck data available yet');
         }
@@ -402,7 +400,7 @@ function initMap() {
             });
         }
 
-        console.log('✅ Map initialized successfully!');
+        console.log('✅ Map fully initialized!');
 
     } catch (error) {
         console.error('❌ Error initializing map:', error);
@@ -574,14 +572,29 @@ function updateMapMarkers() {
 
     console.log('Updating map markers...');
 
-    // Clear existing markers
+    // Clear existing truck markers
     markers.trucks.forEach(truckMarker => {
-        map.removeLayer(truckMarker.marker);
+        try {
+            if (map && map.hasLayer && map.hasLayer(truckMarker.marker)) {
+                map.removeLayer(truckMarker.marker);
+            }
+        } catch (e) {
+            console.warn('Error removing truck marker:', e);
+        }
     });
     markers.trucks = [];
 
-    // Clear existing colony markers (this is a simple approach - in production you'd track them better)
-    // For now, we'll just add new ones and let the old ones be replaced
+    // Clear existing house markers
+    markers.houses.forEach(houseMarker => {
+        try {
+            if (map && map.hasLayer && map.hasLayer(houseMarker.marker)) {
+                map.removeLayer(houseMarker.marker);
+            }
+        } catch (e) {
+            console.warn('Error removing house marker:', e);
+        }
+    });
+    markers.houses = [];
 
     // Add truck markers
     if (trucksData && trucksData.length > 0) {
@@ -589,10 +602,14 @@ function updateMapMarkers() {
         trucksData.forEach(truck => {
             addTruckMarker(truck);
         });
+        
+        // Fit map to trucks
+        fitMapToTrucks();
     }
 
     // Add colony markers
     if (coloniesData && coloniesData.length > 0) {
+        console.log('Adding colony markers:', coloniesData.length);
         coloniesData.forEach(colony => {
             addColonyMarker(colony);
         });

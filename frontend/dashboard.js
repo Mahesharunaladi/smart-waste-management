@@ -1,10 +1,12 @@
 // Check authentication on page load
 (function checkAuth() {
     const token = localStorage.getItem('token');
+    console.log('Checking authentication, token:', token ? 'present' : 'not found');
     if (!token) {
-        // No token found, redirect to login
-        window.location.href = 'login.html';
-        return;
+        console.log('No token found, redirecting to login');
+        // Temporarily comment out redirect for debugging
+        // window.location.href = 'login.html';
+        // return;
     }
 })();
 
@@ -33,12 +35,16 @@ function getAuthHeaders() {
 
 // Load data from API
 async function loadData() {
+    console.log('Starting to load data from API...');
     try {
         // Load trucks
+        console.log('Loading trucks data...');
         const trucksResponse = await fetch(`${API_BASE}/trucks`, {
             headers: getAuthHeaders()
         });
+        console.log('Trucks response status:', trucksResponse.status);
         const trucksResult = await trucksResponse.json();
+        console.log('Trucks API result:', trucksResult);
         if (trucksResult.success) {
             trucksData = trucksResult.trucks.map(truck => ({
                 id: truck.truckId,
@@ -308,20 +314,40 @@ function initDashboard() {
 // Initialize Leaflet Map
 function initMap() {
     console.log('Initializing map...');
+
     const mapContainer = document.getElementById('map');
+    console.log('Map container element:', mapContainer);
     if (!mapContainer) {
         console.error('Map container not found!');
         return;
     }
 
+    // Check if container is visible
+    const rect = mapContainer.getBoundingClientRect();
+    console.log('Map container rect:', rect);
+    console.log('Map container dimensions:', mapContainer.offsetWidth, 'x', mapContainer.offsetHeight);
+
+    if (rect.width === 0 || rect.height === 0) {
+        console.warn('Map container has zero dimensions, waiting for layout...');
+        // Try again after a short delay
+        setTimeout(() => {
+            console.log('Retrying map initialization...');
+            initMap();
+        }, 500);
+        return;
+    }
+
     try {
+        console.log('Creating Leaflet map...');
         map = L.map('map').setView([12.3051, 76.6553], 13);
+        console.log('Map object created:', map);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
+        console.log('Tile layer added to map');
 
-        console.log('Map initialized successfully');
+        console.log('Map initialized successfully - you should see the map now!');
 
         // Add truck markers if data is available
         if (trucksData && trucksData.length > 0) {
@@ -452,7 +478,7 @@ function updateMapMarkers() {
     
     console.log('Truck marker added to map for:', truck.name);
     markers.trucks.push({ id: truck.id, marker, data: truck });
-}
+
 
 // Add colony marker to map
 function addColonyMarker(colony) {
@@ -781,9 +807,23 @@ function setupSidebarNavigation() {
                 sections.forEach(s => s.classList.remove('hidden'));
                 // ensure map redraws and is visible
                 if (map && typeof map.invalidateSize === 'function') {
-                    setTimeout(() => { try { map.invalidateSize(); } catch (e) { console.warn(e); } }, 200);
+                    console.log('Invalidating map size for map view');
+                    setTimeout(() => {
+                        try {
+                            map.invalidateSize();
+                            console.log('Map size invalidated successfully');
+                        } catch (e) {
+                            console.warn('Error invalidating map size:', e);
+                        }
+                    }, 200);
                     // optionally focus the map container
-                    const mapEl = document.getElementById('map'); if (mapEl) mapEl.focus();
+                    const mapEl = document.getElementById('map');
+                    if (mapEl) {
+                        mapEl.focus();
+                        console.log('Map container focused');
+                    }
+                } else {
+                    console.log('Map not ready yet, will initialize when available');
                 }
             } else if (target === 'trucks') {
                 const sec = document.querySelector('.details-panel .panel-section[data-section="trucks"]');
@@ -944,6 +984,8 @@ function updateTruckPositions() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log('DOM content loaded, starting dashboard initialization...');
+    alert('Dashboard JavaScript is loading... Check console for details!');
     await loadData();
     initDashboard();
 });

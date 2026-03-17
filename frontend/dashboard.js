@@ -27,6 +27,13 @@ const API_BASE = 'http://localhost:3001/api';
 // Get auth headers
 function getAuthHeaders() {
     const token = localStorage.getItem('token');
+    console.log('Getting auth headers, token exists:', !!token);
+    if (!token) {
+        console.warn('No token found, API calls may fail');
+        return {
+            'Content-Type': 'application/json'
+        };
+    }
     return {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -36,6 +43,16 @@ function getAuthHeaders() {
 // Load data from API
 async function loadData() {
     console.log('Starting to load data from API...');
+
+    // First, try to test API connectivity
+    try {
+        console.log('Testing API connectivity...');
+        const testResponse = await fetch(`${API_BASE}/`, { headers: getAuthHeaders() });
+        console.log('API test response status:', testResponse.status);
+    } catch (error) {
+        console.error('API connectivity test failed:', error);
+    }
+
     try {
         // Load trucks
         console.log('Loading trucks data...');
@@ -129,14 +146,23 @@ async function loadData() {
     } catch (error) {
         console.error('Error loading data:', error);
         // Fallback to sample data if API fails
+        console.log('Loading sample data due to API error');
         loadSampleData();
     }
 
     // Update map markers if map is already initialized
     updateMapMarkers();
+
+    // Force render after data loading
+    console.log('Forcing render after data load');
+    renderTrucks();
+    renderColonies();
+    renderActivities();
+    renderWasteChart();
 }
 
 function loadSampleData() {
+    console.log('Loading sample data...');
     trucksData = [
         {
             id: 'T001',
@@ -254,6 +280,7 @@ function loadSampleData() {
             ]
         }
     ];
+    console.log('Sample data loaded successfully:', trucksData.length, 'trucks,', coloniesData.length, 'colonies');
 }
 
 const recentActivities = [
@@ -590,10 +617,22 @@ function animateCounter(elementId, target) {
     }, 50);
 }
 
-// Render trucks list
-// Render trucks list
+
 function renderTrucks() {
+    console.log('Rendering trucks, data:', trucksData);
     const truckList = document.getElementById('truckList');
+    console.log('Truck list element:', truckList);
+    if (!truckList) {
+        console.error('Truck list element not found!');
+        return;
+    }
+
+    if (!trucksData || trucksData.length === 0) {
+        truckList.innerHTML = '<div class="no-data">No truck data available</div>';
+        console.log('No truck data to render');
+        return;
+    }
+
     truckList.innerHTML = trucksData.map(truck => `
         <div class="truck-item" onclick="focusTruck('${truck.id}')" title="Click to view on map">
             <div class="truck-header">
@@ -617,11 +656,29 @@ function renderTrucks() {
         </div>
     `).join('');
     console.log('Trucks rendered:', trucksData.length);
+    
+    // Add visual confirmation
+    if (trucksData.length > 0) {
+        console.log('✅ Truck data is visible in the UI!');
+    }
 }
 
 // Render colonies list
 function renderColonies() {
+    console.log('Rendering colonies, data:', coloniesData);
     const colonyList = document.getElementById('colonyList');
+    console.log('Colony list element:', colonyList);
+    if (!colonyList) {
+        console.error('Colony list element not found!');
+        return;
+    }
+
+    if (!coloniesData || coloniesData.length === 0) {
+        colonyList.innerHTML = '<div class="no-data">No colony data available</div>';
+        console.log('No colony data to render');
+        return;
+    }
+
     colonyList.innerHTML = coloniesData.map(colony => `
         <div class="colony-item" onclick="showColonyDetails('${colony.id}')">
             <div class="colony-name">${colony.name}</div>
@@ -985,7 +1042,27 @@ function updateTruckPositions() {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM content loaded, starting dashboard initialization...');
+    
+    // Check if key elements exist
+    const mapElement = document.getElementById('map');
+    const truckListElement = document.getElementById('truckList');
+    const colonyListElement = document.getElementById('colonyList');
+    
+    console.log('DOM elements check:');
+    console.log('- Map element:', mapElement);
+    console.log('- Truck list element:', truckListElement);
+    console.log('- Colony list element:', colonyListElement);
+    
+    if (!mapElement) console.error('❌ Map element not found!');
+    if (!truckListElement) console.error('❌ Truck list element not found!');
+    if (!colonyListElement) console.error('❌ Colony list element not found!');
+    
     alert('Dashboard JavaScript is loading... Check console for details!');
+
+    // For debugging, load sample data immediately
+    console.log('Loading sample data for testing...');
+    loadSampleData();
+
     await loadData();
     initDashboard();
 });

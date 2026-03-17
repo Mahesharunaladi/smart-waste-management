@@ -14,6 +14,7 @@ let markers = {
 // Data variables - will be loaded from API
 let trucksData = [];
 let coloniesData = [];
+let householdsData = [];
 
 // API base URL
 const API_BASE = 'http://localhost:3001/api';
@@ -56,7 +57,19 @@ async function loadData() {
         });
         const householdsResult = await householdsResponse.json();
         if (householdsResult.success) {
-            // Group households by colony
+            // Store individual households for map display
+            householdsData = householdsResult.households.map(household => ({
+                id: household.householdId,
+                name: household.name,
+                address: household.address?.street || 'Unknown',
+                zone: household.address?.zone || 'Unknown',
+                location: household.location?.coordinates || [12.2958, 76.6394], // Default Mysore center
+                status: household.status === 'compliant' ? 'collected' : household.status === 'missed' ? 'missed' : 'pending',
+                waste: household.wasteData?.todayWaste || 0,
+                phone: household.contact?.phone || 'N/A'
+            }));
+
+            // Group households by colony for stats and colony list
             const colonyMap = {};
             householdsResult.households.forEach(household => {
                 const colonyName = household.address?.zone || 'Unknown Colony';
@@ -64,7 +77,7 @@ async function loadData() {
                     colonyMap[colonyName] = {
                         id: `C${Object.keys(colonyMap).length + 1}`,
                         name: colonyName,
-                        location: [12.3051, 76.6553], // Default location, could be calculated
+                        location: household.location?.coordinates || [12.2958, 76.6394], // Use first household's location as colony center
                         totalHouses: 0,
                         collectedHouses: 0,
                         missedHouses: 0,
@@ -244,15 +257,32 @@ function loadSampleData() {
             ]
         }
     ];
+
+    householdsData = [
+        { id: 'H001', name: 'Rajesh Family', address: 'House #12, 1st Main', zone: 'Jayanagar', location: [12.3051, 76.6553], status: 'collected', waste: 2.5, phone: '9876543214' },
+        { id: 'H002', name: 'Priya Household', address: 'House #15, 1st Main', zone: 'Jayanagar', location: [12.3053, 76.6555], status: 'collected', waste: 2.2, phone: '9876543215' },
+        { id: 'H003', name: 'Kumar Residence', address: 'House #18, 2nd Cross', zone: 'Jayanagar', location: [12.3049, 76.6551], status: 'missed', waste: 0, phone: '9876543216' },
+        { id: 'H004', name: 'Lakshmi House', address: 'House #21, 2nd Cross', zone: 'Jayanagar', location: [12.3055, 76.6557], status: 'collected', waste: 1.8, phone: '9876543217' },
+        { id: 'H005', name: 'Venkatesh Home', address: 'House #25, 3rd Main', zone: 'Jayanagar', location: [12.3047, 76.6549], status: 'missed', waste: 0, phone: '9876543218' },
+        { id: 'H011', name: 'Sharma Family', address: 'House #5, Block A', zone: 'Kuvempunagar', location: [12.3110, 76.6590], status: 'collected', waste: 2.1, phone: '9876543219' },
+        { id: 'H012', name: 'Patel Household', address: 'House #8, Block A', zone: 'Kuvempunagar', location: [12.3112, 76.6592], status: 'collected', waste: 2.8, phone: '9876543220' },
+        { id: 'H013', name: 'Gupta Residence', address: 'House #12, Block B', zone: 'Kuvempunagar', location: [12.3108, 76.6588], status: 'missed', waste: 0, phone: '9876543221' },
+        { id: 'H014', name: 'Singh Family', address: 'House #15, Block B', zone: 'Kuvempunagar', location: [12.3114, 76.6594], status: 'collected', waste: 3.5, phone: '9876543222' },
+        { id: 'H015', name: 'Mehta House', address: 'House #20, Block C', zone: 'Kuvempunagar', location: [12.3106, 76.6586], status: 'missed', waste: 0, phone: '9876543223' },
+        { id: 'H021', name: 'Krishna Home', address: 'House #3, MG Road', zone: 'Vijayanagar', location: [12.3200, 76.6450], status: 'collected', waste: 4.2, phone: '9876543224' },
+        { id: 'H022', name: 'Radha Residence', address: 'House #7, MG Road', zone: 'Vijayanagar', location: [12.3202, 76.6452], status: 'collected', waste: 3.1, phone: '9876543225' },
+        { id: 'H023', name: 'Bharath House', address: 'House #11, KC Road', zone: 'Vijayanagar', location: [12.3198, 76.6448], status: 'missed', waste: 0, phone: '9876543226' },
+        { id: 'H024', name: 'Arjun Family', address: 'House #14, KC Road', zone: 'Vijayanagar', location: [12.3204, 76.6454], status: 'collected', waste: 2.9, phone: '9876543227' },
+        { id: 'H025', name: 'Kavya Home', address: 'House #18, JC Road', zone: 'Vijayanagar', location: [12.3196, 76.6446], status: 'missed', waste: 0, phone: '9876543228' },
+        { id: 'H031', name: 'Ravi Kumar', address: 'House #9, Main Road', zone: 'Saraswathipuram', location: [12.2980, 76.6410], status: 'collected', waste: 2.3, phone: '9876543229' },
+        { id: 'H032', name: 'Anita Sharma', address: 'House #13, 1st Cross', zone: 'Saraswathipuram', location: [12.2982, 76.6412], status: 'collected', waste: 2.7, phone: '9876543230' },
+        { id: 'H033', name: 'Mohan Lal', address: 'House #16, 2nd Cross', zone: 'Saraswathipuram', location: [12.2978, 76.6408], status: 'missed', waste: 0, phone: '9876543231' },
+        { id: 'H034', name: 'Sunita Devi', address: 'House #22, 3rd Cross', zone: 'Saraswathipuram', location: [12.2984, 76.6414], status: 'collected', waste: 3.4, phone: '9876543232' },
+        { id: 'H035', name: 'Rajendra Prasad', address: 'House #28, 4th Main', zone: 'Saraswathipuram', location: [12.2976, 76.6406], status: 'missed', waste: 0, phone: '9876543233' }
+    ];
 }
 
 const recentActivities = [
-    {
-        type: 'success',
-        icon: 'fa-check',
-        title: 'Truck T001 completed collection in Jayanagar',
-        time: '5 minutes ago'
-    },
     {
         type: 'success',
         icon: 'fa-check',
@@ -281,7 +311,6 @@ const recentActivities = [
 
 // Initialize Dashboard
 function initDashboard() {
-    initMap();
     updateStats();
     renderTrucks();
     renderColonies();
@@ -289,6 +318,12 @@ function initDashboard() {
     renderWasteChart();
     setupSidebarNavigation();
     setupMapControls();
+    
+    // Initialize map with proper timing - wait a bit for DOM to be fully rendered
+    setTimeout(() => {
+        initMap();
+        console.log('Map initialization scheduled after DOM layout');
+    }, 100);
     
     // Live truck tracking - update every 5 seconds
     setInterval(async () => {
@@ -341,41 +376,26 @@ function initMap() {
     try {
         console.log('Creating Leaflet map instance...');
         
-        // Clear any Leaflet remnants
-        mapContainer.innerHTML = '';
-        
-        // Create map instance
-        map = L.map(mapContainer);
-        map.setView([12.3051, 76.6553], 13);
+        // Simple, proven Leaflet initialization
+        map = L.map('map').setView([12.2958, 76.6394], 13);
         
         console.log('✅ Map instance created');
 
-        // Add CartoDB Positron tile layer (most reliable)
-        const cartodb = L.tileLayer(
-            'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-            {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                subdomains: 'abcd',
-                maxZoom: 20,
-                minZoom: 0
-            }
-        ).addTo(map);
-        
-        console.log('✅ CartoDB tile layer added');
-
-        // Add fallback OpenStreetMap layer
-        const osmLayer = L.tileLayer(
-            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19,
-                minZoom: 0
-            }
-        );
+        // Add OpenStreetMap tile layer - using the exact proven code
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+        console.log('✅ OpenStreetMap tile layer added');
 
         // Ensure map is properly sized
         map.invalidateSize(true);
-        console.log('✅ Map size validated');
+        console.log('✅ Map size validated and initialized');
+        
+        // Verify map is working
+        console.log('Map center:', map.getCenter());
+        console.log('Map zoom:', map.getZoom());
+        console.log('Map bounds:', map.getBounds());
 
         // Add truck markers if data is available
         if (trucksData && trucksData.length > 0) {
@@ -387,9 +407,9 @@ function initMap() {
             // Fit all truck markers in view
             setTimeout(() => {
                 fitMapToTrucks();
-            }, 800);
+            }, 300);
         } else {
-            console.log('No truck data available yet');
+            console.log('No truck data available yet, using default view');
         }
 
         // Add colony markers if data is available
@@ -1126,23 +1146,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Load data first
     await loadData();
+    console.log('✅ Data loaded successfully');
     
     // Then initialize the dashboard UI
     initDashboard();
+    console.log('✅ Dashboard UI initialized');
     
-    // Ensure map is visible and focused
+    // Ensure map is visible and properly focused/sized
     setTimeout(() => {
+        // Switch to map view
         const mapNavItem = document.querySelector('[data-target="map"]');
         if (mapNavItem) {
             mapNavItem.click();
+            console.log('✅ Map view activated');
         }
         
-        // Invalidate map size to ensure proper rendering
+        // Force map to recalculate size after view switch
         if (map && typeof map.invalidateSize === 'function') {
-            map.invalidateSize();
+            map.invalidateSize(true);
             console.log('✅ Map size invalidated and focused');
         }
-    }, 500);
+    }, 600);
     
-    console.log('✅ Dashboard initialized successfully!');
+    console.log('✅ Dashboard initialization complete!');
 });

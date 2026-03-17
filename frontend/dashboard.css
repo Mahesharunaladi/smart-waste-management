@@ -299,21 +299,37 @@ body {
     min-height: 400px;
     width: 100%;
     position: relative;
-    background: #fff;
-    z-index: 1;
+    background: #d3e3f0;
+    z-index: 0;
     border: none;
 }
 
 /* Ensure Leaflet map is properly rendered */
 .leaflet-container {
-    background: #fff;
+    background: #d3e3f0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     height: 100%;
     width: 100%;
 }
 
 .leaflet-tile {
-    image-rendering: optimizeSpeed;
+    image-rendering: pixelated;
+}
+
+.leaflet-tile-pane {
+    z-index: 1;
+}
+
+.leaflet-overlay-pane {
+    z-index: 7;
+}
+
+.leaflet-marker-pane {
+    z-index: 600;
+}
+
+.leaflet-popup-pane {
+    z-index: 700;
 }
 
 .leaflet-tile-pane {

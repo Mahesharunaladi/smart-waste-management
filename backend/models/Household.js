@@ -17,9 +17,20 @@ const householdSchema = new mongoose.Schema({
         zone: String,
         city: {
             type: String,
-            default: 'Bengaluru'
+            default: 'Mysore'
         },
         pincode: String
+    },
+    location: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            default: 'Point'
+        },
+        coordinates: {
+            type: [Number], // [longitude, latitude]
+            required: true
+        }
     },
     contact: {
         phone: {

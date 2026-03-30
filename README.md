@@ -64,7 +64,7 @@ An attractive, real-time web application for monitoring and managing waste colle
    - Direct: `file:///path/to/index.html`
    - Local server: `http://localhost:8000`
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 smart-waste-management-1/
@@ -74,7 +74,7 @@ smart-waste-management-1/
 └── README.md           # Project documentation
 ```
 
-## 🎨 Features Breakdown
+## Features Breakdown
 
 ### Dashboard Section
 - 4 statistics cards showing key metrics
@@ -91,9 +91,9 @@ smart-waste-management-1/
 ### Households Section
 - Grid layout with household cards
 - Color-coded status badges:
-  - 🟢 **Green** (Compliant): Waste collected today
-  - 🟡 **Yellow** (Pending): Collection scheduled
-  - 🔴 **Red** (Missed): Collection overdue
+  - Green (Compliant): Waste collected today
+  - Yellow (Pending): Collection scheduled
+  - Red (Missed): Collection overdue
 - Detailed modal view with complete household information
 - Search functionality
 - Status-based filtering
@@ -103,7 +103,7 @@ smart-waste-management-1/
 - Doughnut chart: Household compliance distribution
 - Top 5 contributors leaderboard with rankings
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 - **HTML5**: Semantic structure
 - **CSS3**: Modern styling with gradients, animations, and flexbox/grid layouts
@@ -112,15 +112,15 @@ smart-waste-management-1/
 - **Chart.js**: Data visualization and charts
 - **Font Awesome**: Icons throughout the interface
 
-## 📱 Responsive Design
+## Responsive Design
 
 The application is fully responsive and works on:
-- 🖥️ Desktop computers (1400px+)
-- 💻 Laptops (1024px - 1400px)
-- 📱 Tablets (768px - 1024px)
-- 📱 Mobile phones (<768px)
+- Desktop computers (1400px+)
+- Laptops (1024px - 1400px)
+- Tablets (768px - 1024px)
+- Mobile phones (<768px)
 
-## 🎯 Usage Guide
+## Usage Guide
 
 ### Monitoring Trucks
 1. Click **"Truck Tracking"** in the navigation bar
@@ -143,7 +143,7 @@ The application is fully responsive and works on:
 4. See top contributing households
 5. Click "Generate Report" for detailed PDF reports
 
-## 🔧 Customization
+## Customization
 
 ### Adding New Trucks
 Edit the `trucksData` array in `app.js`:
@@ -182,7 +182,7 @@ Modify the map initialization in `app.js`:
 map = L.map('map').setView([YOUR_LAT, YOUR_LONG], ZOOM_LEVEL);
 ```
 
-## 🎨 Color Scheme
+## Color Scheme
 
 - **Primary Green**: `#10b981` - Success, compliant status
 - **Secondary Cyan**: `#06b6d4` - Active elements, links
@@ -191,33 +191,29 @@ map = L.map('map').setView([YOUR_LAT, YOUR_LONG], ZOOM_LEVEL);
 - **Dark Background**: `#1f2937` - Navigation bar
 - **Light Background**: `#f9fafb` - Main content area
 
-## 🔮 Future Enhancements
+## Future Enhancements
 
-- [ ] Backend integration with real database
-- [ ] User authentication and role-based access
-- [ ] SMS/Email notifications for collections
-- [ ] Mobile app version (React Native)
-- [ ] AI-powered route optimization
-- [ ] Integration with IoT sensors in bins
-- [ ] Multi-language support
-- [ ] Dark mode theme
-- [ ] Export data to Excel/CSV
-- [ ] Real-time notifications
-- [ ] Weather-based collection scheduling
+- Backend integration with real database
+- User authentication and role-based access
+- SMS/Email notifications for collections
+- Mobile app version (React Native)
+- AI-powered route optimization
+- Integration with IoT sensors in bins
+- Multi-language support
+- Dark mode theme
+- Export data to Excel/CSV
+- Real-time notifications
+- Weather-based collection scheduling
 
-## 📄 License
+## License
 
 This project is open source and available for educational and commercial use.
 
-## 👤 Author
+## Author
 
 **Mahesh Arun Aladi**
 
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-## 📞 Support
+## Support
 
 For support, email your contact or create an issue in the repository.
 

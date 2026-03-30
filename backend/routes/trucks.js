@@ -171,6 +171,54 @@ router.put('/:id/status', async (req, res) => {
     }
 });
 
+// @route   PUT /api/trucks/:id/driver
+// @desc    Update driver details (name, phone, license)
+// @access  Private
+router.put('/:id/driver', async (req, res) => {
+    try {
+        const { name, phone, license } = req.body;
+
+        const updateData = {};
+        if (name) updateData['driver.name'] = name;
+        if (phone) updateData['driver.phone'] = phone;
+        if (license) updateData['driver.license'] = license;
+
+        const truck = await Truck.findOneAndUpdate(
+            { truckId: req.params.id.toUpperCase() },
+            updateData,
+            { new: true }
+        );
+
+        if (!truck) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Truck not found' 
+            });
+        }
+
+        // Create activity
+        await Activity.create({
+            type: 'truck_status',
+            title: `Driver details updated for ${truck.truckId}`,
+            description: `Driver information updated for truck ${truck.truckId}`,
+            icon: 'fa-user',
+            relatedTruck: truck._id
+        });
+
+        res.json({
+            success: true,
+            message: 'Driver details updated',
+            truck
+        });
+    } catch (error) {
+        console.error('Update driver error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error' 
+        });
+    }
+});
+
 // @route   DELETE /api/trucks/:id
 // @desc    Delete truck
 // @access  Private

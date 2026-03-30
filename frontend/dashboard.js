@@ -789,6 +789,11 @@ function renderTrucks() {
                     <span><i class="fas fa-weight"></i> ${truck.wasteCollected} kg</span>
                     <span><i class="fas fa-map-marker-alt"></i> ${truck.currentColony}</span>
                 </div>
+                <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                    <button onclick="trackByPhone('${truck.driverPhone}')" style="flex: 1; padding: 8px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">
+                        <i class="fas fa-phone"></i> Track Live
+                    </button>
+                </div>
             </div>
         </div>
     `).join('');
@@ -1237,6 +1242,14 @@ window.logout = function() {
     
     // Redirect to home page
     window.location.href = 'index.html';
+}
+
+// Track truck by phone number - Make it globally accessible
+window.trackByPhone = function(phone) {
+    console.log('Tracking truck by phone:', phone);
+    // Store phone in sessionStorage and redirect to live tracking page
+    sessionStorage.setItem('trackingPhone', phone);
+    window.location.href = 'live-tracking.html';
 }
 
 // Initialize dashboard when DOM is ready

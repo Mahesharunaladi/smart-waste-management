@@ -200,4 +200,109 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// @route   GET /api/trucks/track/by-phone/:phone
+// @desc    Track truck by driver phone number (Live Tracking)
+// @access  Public
+router.get('/track/by-phone/:phone', async (req, res) => {
+    try {
+        const phone = req.params.phone.trim();
+        
+        if (!phone) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Phone number is required' 
+            });
+        }
+
+        // Find truck by driver phone number
+        const truck = await Truck.findOne({ 'driver.phone': phone })
+            .populate('route.assignedHouseholds', 'householdId name address location');
+
+        if (!truck) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'No truck found for this phone number',
+                phone: phone
+            });
+        }
+
+        // Prepare tracking data
+        const trackingData = {
+            truckId: truck.truckId,
+            driverName: truck.driver.name,
+            driverPhone: truck.driver.phone,
+            status: truck.status,
+            location: truck.location,
+            address: truck.location.address,
+            zone: truck.route.zone,
+            currentCapacity: truck.capacity.current,
+            maxCapacity: truck.capacity.max,
+            totalWasteCollectedToday: truck.totalWasteCollectedToday,
+            totalCollectionsToday: truck.totalCollectionsToday,
+            assignedHouseholds: truck.route.assignedHouseholds,
+            lastCollection: truck.lastCollection,
+            isActive: truck.isActive,
+            timestamp: new Date()
+        };
+
+        res.json({
+            success: true,
+            message: 'Truck tracking data retrieved',
+            tracking: trackingData,
+            truck: truck
+        });
+    } catch (error) {
+        console.error('Track truck by phone error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error',
+            error: error.message
+        });
+    }
+});
+
+// @route   GET /api/trucks/search/phone/:query
+// @desc    Search trucks by driver phone number (for autocomplete)
+// @access  Public
+router.get('/search/phone/:query', async (req, res) => {
+    try {
+        const query = req.params.query.trim();
+        
+        if (!query || query.length < 2) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Query must be at least 2 characters',
+                results: []
+            });
+        }
+
+        // Search for trucks matching phone number pattern
+        const trucks = await Truck.find({
+            'driver.phone': { $regex: query, $options: 'i' }
+        }).select('truckId driver.name driver.phone status location route.zone');
+
+        const results = trucks.map(truck => ({
+            truckId: truck.truckId,
+            driverName: truck.driver.name,
+            driverPhone: truck.driver.phone,
+            status: truck.status,
+            zone: truck.route.zone,
+            location: truck.location
+        }));
+
+        res.json({
+            success: true,
+            count: results.length,
+            results: results
+        });
+    } catch (error) {
+        console.error('Search truck by phone error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error',
+            results: []
+        });
+    }
+});
+
 module.exports = router;

@@ -471,10 +471,10 @@ function initMap() {
             }
         }, 300);
 
-        console.log('✅ Map fully initialized!');
+        console.log(' Map fully initialized!');
 
     } catch (error) {
-        console.error('❌ Error initializing map:', error);
+        console.error('Error initializing map:', error);
     }
 }
 

@@ -1,22 +1,22 @@
-# Smart Waste Management System 🚛♻️
+# Smart Waste Management System
 
 An attractive, real-time web application for monitoring and managing waste collection in residential colonies. Track garbage trucks, monitor household waste disposal, and analyze collection data with an intuitive dashboard.
 
-## ✨ Features
+## Features
 
-### 📊 Dashboard
+### Dashboard
 - **Real-time Statistics**: View active trucks, total waste collected, household count, and daily collections
 - **Activity Feed**: Monitor recent activities including collections, truck movements, and alerts
 - **Quick Actions**: Fast access to truck tracking, household management, and report generation
 
-### 🗺️ Live Truck Tracking
+### Live Truck Tracking
 - **Real-time GPS Tracking**: Monitor garbage truck locations on an interactive map
 - **Truck Details**: View truck ID, driver name, capacity level, route, and last collection time
 - **Status Filtering**: Filter trucks by status (All, Active, Idle)
 - **Live Updates**: Automatic position updates every 5 seconds
 - **Interactive Map**: Click on trucks or households for detailed information
 
-### 🏠 Household Management
+### Household Management
 - **Comprehensive Profiles**: Track each household's waste disposal history
 - **Search & Filter**: Easily find households by name, ID, or address
 - **Status Monitoring**: See which households are compliant, pending, or missed collections
@@ -27,13 +27,13 @@ An attractive, real-time web application for monitoring and managing waste colle
   - Per capita waste generation
   - Complete collection history with dates, amounts, and waste types
 
-### 📈 Analytics & Reports
+### Analytics & Reports
 - **Waste Collection Trends**: Visual charts showing daily/weekly collection patterns
 - **Compliance Rates**: Pie chart showing household compliance statistics
 - **Leaderboard**: Top contributing households ranked by monthly waste collection
 - **Report Generation**: Download comprehensive PDF reports
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - A modern web browser (Chrome, Firefox, Safari, or Edge)

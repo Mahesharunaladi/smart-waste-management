@@ -207,7 +207,7 @@ map = L.map('map').setView([YOUR_LAT, YOUR_LONG], ZOOM_LEVEL);
 
 ## License
 
-This project is open source and available for educational and commercial use.
+This project is open source and available for educational use.
 
 ## Author
 

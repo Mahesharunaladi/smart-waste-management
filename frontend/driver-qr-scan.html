@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner - SmartWaste Driver</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .scanner-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .scanner-header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .scanner-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .scanner-header p {
+            color: #6b7280;
+            font-size: 0.95em;
+        }
+
+        .scanner-content {
+            background: white;
+            padding: 30px;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .camera-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            aspect-ratio: 1;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        .scanner-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 250px;
+            height: 250px;
+            border: 3px solid #667eea;
+            border-radius: 8px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+        }
+
+        .scanner-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+            animation: scan 2s infinite;
+        }
+
+        @keyframes scan {
+            0%, 100% { top: 0; }
+            50% { top: calc(100% - 2px); }
+        }
+
+        .scanner-corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #667eea;
+        }
+
+        .corner-tl { top: -3px; left: -3px; border-right: none; border-bottom: none; }
+        .corner-tr { top: -3px; right: -3px; border-left: none; border-bottom: none; }
+        .corner-bl { bottom: -3px; left: -3px; border-right: none; border-top: none; }
+        .corner-br { bottom: -3px; right: -3px; border-left: none; border-top: none; }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.active {
+            display: block;
+        }
+
+        .message.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .message.success {
+            background: #dcfce7;
+            color: #166534;
+            border-left: 4px solid #22c55e;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #dc2626;
+        }
+
+        .qr-result {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .qr-result.active {
+            display: block;
+        }
+
+        .result-item {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9em;
+        }
+
+        .result-value {
+            color: #667eea;
+            font-weight: 700;
+            margin-top: 3px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-continue {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: none;
+        }
+
+        .btn-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-continue:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-logout {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .btn-logout:hover {
+            background: #e5e7eb;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+            margin-top: 20px;
+        }
+
+        .info-box strong {
+            color: #1e40af;
+        }
+
+        .info-box p {
+            color: #1e40af;
+            font-size: 0.9em;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="scanner-container">
+        <div class="scanner-header">
+            <h1>QR Code Scanner</h1>
+            <p>Scan the QR code on your truck to verify identity</p>
+        </div>
+
+        <div class="scanner-content">
+            <div class="message info" id="infoMessage">
+                <i class="fas fa-info-circle"></i> Point your camera at the QR code on the truck
+            </div>
+
+            <div class="message success" id="successMessage"></div>
+            <div class="message error" id="errorMessage"></div>
+
+            <div class="camera-wrapper">
+                <video id="video" autoplay></video>
+                <canvas id="canvas"></canvas>
+                <div class="scanner-frame">
+                    <div class="scanner-corner corner-tl"></div>
+                    <div class="scanner-corner corner-tr"></div>
+                    <div class="scanner-corner corner-bl"></div>
+                    <div class="scanner-corner corner-br"></div>
+                </div>
+            </div>
+
+            <div class="qr-result" id="qrResult">
+                <div class="result-item">
+                    <div class="result-label">QR Data:</div>
+                    <div class="result-value" id="qrData"></div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Status:</div>
+                    <div class="result-value" id="qrStatus">Verified</div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-continue" id="continueBtn" onclick="proceedToFaceRecognition()">
+                    <i class="fas fa-arrow-right"></i> Continue to Face Scan
+                </button>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+
+            <div class="info-box">
+                <p><strong>Next Step:</strong> After QR verification, you'll scan your face for authentication.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let qrScanned = false;
+        let driverSession = null;
+
+        // Initialize
+        window.addEventListener('load', () => {
+            const session = localStorage.getItem('driverSession');
+            if (!session) {
+                window.location.href = 'driver-login.html';
+                return;
+            }
+            driverSession = JSON.parse(session);
+            startQRScanning();
+        });
+
+        // Start QR code scanning
+        function startQRScanning() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Request camera access
+            navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            })
+            .then(stream => {
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    scanQRCode();
+                };
+            })
+            .catch(error => {
+                console.error('Camera error:', error);
+                showMessage('error', 'Unable to access camera. Please check permissions.');
+            });
+
+            function scanQRCode() {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                    if (code && !qrScanned) {
+                        handleQRScanned(code.data);
+                        qrScanned = true;
+                    }
+                }
+                if (!qrScanned) {
+                    requestAnimationFrame(scanQRCode);
+                }
+            }
+        }
+
+        // Handle QR code scanned
+        function handleQRScanned(qrData) {
+            console.log('QR Code Scanned:', qrData);
+
+            // Expected QR format: TRUCK_T001_VERIFIED
+            if (qrData.includes(driverSession.truckId)) {
+                showMessage('success', 'QR Code verified! Truck matched.');
+                document.getElementById('qrData').textContent = qrData;
+                document.getElementById('qrResult').classList.add('active');
+                document.getElementById('infoMessage').classList.remove('active');
+                document.getElementById('continueBtn').style.display = 'flex';
+            } else {
+                showMessage('error', 'QR Code does not match your truck. Please scan the correct truck.');
+                qrScanned = false;
+                document.getElementById('continueBtn').style.display = 'none';
+            }
+        }
+
+        // Proceed to face recognition
+        function proceedToFaceRecognition() {
+            if (!qrScanned) {
+                showMessage('error', 'Please scan QR code first');
+                return;
+            }
+
+            // Save QR verification status
+            driverSession.qrVerified = true;
+            localStorage.setItem('driverSession', JSON.stringify(driverSession));
+
+            showMessage('success', 'Proceeding to face recognition...');
+            setTimeout(() => {
+                window.location.href = 'driver-face-scan.html';
+            }, 1500);
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('driverSession');
+                window.location.href = 'driver-login.html';
+            }
+        }
+
+        // Show message
+        function showMessage(type, message) {
+            const msgDiv = document.getElementById(type + 'Message');
+            msgDiv.textContent = message;
+            msgDiv.classList.add('active');
+            if (type === 'error') {
+                setTimeout(() => msgDiv.classList.remove('active'), 4000);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -9,6 +9,7 @@ dotenv.config();
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const driverAuthRoutes = require('./routes/driver-auth');
 const truckRoutes = require('./routes/trucks');
 const householdRoutes = require('./routes/households');
 const activityRoutes = require('./routes/activities');
@@ -45,6 +46,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', driverAuthRoutes);
 app.use('/api/trucks', truckRoutes);
 app.use('/api/households', householdRoutes);
 app.use('/api/activities', activityRoutes);

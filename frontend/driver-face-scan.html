@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition - SmartWaste Driver</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tracking.js/1.9.3/tracking.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .face-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .face-header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .face-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .face-header p {
+            color: #6b7280;
+            font-size: 0.95em;
+        }
+
+        .face-content {
+            background: white;
+            padding: 30px;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab-button {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: #6b7280;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95em;
+        }
+
+        .tab-button.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+
+        .tab-button:hover {
+            color: #333;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .camera-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            aspect-ratio: 4/3;
+        }
+
+        video, canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .face-detection-info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            display: none;
+        }
+
+        .face-detection-info.active {
+            display: block;
+        }
+
+        .face-status {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .status-icon.detecting {
+            color: #f59e0b;
+        }
+
+        .status-icon.detected {
+            color: #22c55e;
+        }
+
+        .status-text {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+
+        .status-subtext {
+            font-size: 0.9em;
+            color: #6b7280;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.active {
+            display: block;
+        }
+
+        .message.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .message.success {
+            background: #dcfce7;
+            color: #166534;
+            border-left: 4px solid #22c55e;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #dc2626;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .capture-history {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .capture-history h3 {
+            color: #374151;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+
+        .history-items {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .history-item {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .history-item .icon {
+            font-size: 0.9em;
+        }
+
+        .history-item.success {
+            border-color: #22c55e;
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .history-item.success .icon {
+            color: #22c55e;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+            margin-top: 20px;
+        }
+
+        .info-box strong {
+            color: #1e40af;
+        }
+
+        .info-box p {
+            color: #1e40af;
+            font-size: 0.9em;
+            margin: 0;
+        }
+
+        .shift-info {
+            background: #fef3c7;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #f59e0b;
+            margin-bottom: 20px;
+        }
+
+        .shift-info p {
+            color: #92400e;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        .shift-info strong {
+            color: #78350f;
+        }
+    </style>
+</head>
+<body>
+    <div class="face-container">
+        <div class="face-header">
+            <h1>Face Recognition</h1>
+            <p>SmartWaste Driver Authentication System</p>
+        </div>
+
+        <div class="face-content">
+            <div class="tabs">
+                <button class="tab-button active" onclick="switchTab('login')">
+                    <i class="fas fa-sign-in-alt"></i> Login Scan
+                </button>
+                <button class="tab-button" onclick="switchTab('logout')">
+                    <i class="fas fa-sign-out-alt"></i> Logout Scan
+                </button>
+            </div>
+
+            <!-- Login Tab -->
+            <div class="tab-content active" id="loginTab">
+                <div class="message info" id="loginInfo">
+                    <i class="fas fa-camera"></i> Position your face in front of the camera for login verification
+                </div>
+
+                <div class="message success" id="loginSuccess"></div>
+                <div class="message error" id="loginError"></div>
+
+                <div class="camera-wrapper" id="loginCameraWrapper">
+                    <video id="loginVideo" autoplay></video>
+                    <canvas id="loginCanvas"></canvas>
+                    <div class="face-detection-info" id="loginDetectionInfo">
+                        <i class="fas fa-face-smile"></i> Face Detected
+                    </div>
+                </div>
+
+                <div class="face-status" id="loginStatus">
+                    <div class="status-icon detecting">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="status-text">Detecting Face...</div>
+                    <div class="status-subtext">Keep your face visible in the frame</div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="loginProgress"></div>
+                </div>
+
+                <div class="capture-history" id="loginHistory" style="display: none;">
+                    <h3>Capture Progress</h3>
+                    <div class="history-items" id="loginHistoryItems"></div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" id="loginCompleteBtn" onclick="completeLoginFaceScan()" disabled>
+                        <i class="fas fa-check"></i> Complete Shift Start
+                    </button>
+                    <button class="btn-secondary" onclick="logout()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+
+                <div class="info-box">
+                    <p><strong>Tip:</strong> Position your face clearly in the center and maintain good lighting for best results.</p>
+                </div>
+            </div>
+
+            <!-- Logout Tab -->
+            <div class="tab-content" id="logoutTab">
+                <div class="shift-info" id="shiftInfo">
+                    <p><strong>Shift Active:</strong> Yes</p>
+                    <p id="shiftDuration">Duration: 0h 0m</p>
+                </div>
+
+                <div class="message info" id="logoutInfo">
+                    <i class="fas fa-camera"></i> Position your face in front of the camera for logout verification
+                </div>
+
+                <div class="message success" id="logoutSuccess"></div>
+                <div class="message error" id="logoutError"></div>
+
+                <div class="camera-wrapper" id="logoutCameraWrapper">
+                    <video id="logoutVideo" autoplay></video>
+                    <canvas id="logoutCanvas"></canvas>
+                    <div class="face-detection-info" id="logoutDetectionInfo">
+                        <i class="fas fa-face-smile"></i> Face Detected
+                    </div>
+                </div>
+
+                <div class="face-status" id="logoutStatus">
+                    <div class="status-icon detecting">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="status-text">Detecting Face...</div>
+                    <div class="status-subtext">Keep your face visible in the frame</div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="logoutProgress"></div>
+                </div>
+
+                <div class="capture-history" id="logoutHistory" style="display: none;">
+                    <h3>Capture Progress</h3>
+                    <div class="history-items" id="logoutHistoryItems"></div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" id="logoutCompleteBtn" onclick="completeLogoutFaceScan()" disabled>
+                        <i class="fas fa-check"></i> Complete Shift End
+                    </button>
+                    <button class="btn-secondary" onclick="logout()">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+
+                <div class="info-box">
+                    <p><strong>Note:</strong> Logout scan confirms the end of your shift. Make sure you're scanning before leaving the truck.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let driverSession = null;
+        let loginFaceDetected = false;
+        let loginCaptureCount = 0;
+        let logoutFaceDetected = false;
+        let logoutCaptureCount = 0;
+        const REQUIRED_CAPTURES = 3;
+
+        // Initialize
+        window.addEventListener('load', () => {
+            const session = localStorage.getItem('driverSession');
+            if (!session) {
+                window.location.href = 'driver-login.html';
+                return;
+            }
+            driverSession = JSON.parse(session);
+            
+            if (!driverSession.qrVerified) {
+                window.location.href = 'driver-qr-scan.html';
+                return;
+            }
+
+            initializeFaceDetection();
+            updateShiftInfo();
+        });
+
+        // Switch tabs
+        function switchTab(tab) {
+            // Update buttons
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
+
+            // Stop previous cameras
+            stopAllCameras();
+
+            // Start new camera
+            if (tab === 'login') {
+                startLoginFaceDetection();
+            } else {
+                startLogoutFaceDetection();
+            }
+        }
+
+        // Stop all cameras
+        function stopAllCameras() {
+            ['loginVideo', 'logoutVideo'].forEach(id => {
+                const video = document.getElementById(id);
+                if (video && video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                }
+            });
+        }
+
+        // Initialize face detection
+        function initializeFaceDetection() {
+            startLoginFaceDetection();
+        }
+
+        // Start login face detection
+        function startLoginFaceDetection() {
+            const video = document.getElementById('loginVideo');
+
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
+            })
+            .then(stream => {
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    detectLoginFace();
+                };
+            })
+            .catch(error => {
+                console.error('Camera error:', error);
+                showMessage('loginError', 'Unable to access camera. Please check permissions.');
+            });
+        }
+
+        // Detect login face
+        function detectLoginFace() {
+            const video = document.getElementById('loginVideo');
+            const canvas = document.getElementById('loginCanvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            const checkFrame = () => {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                // Simulate face detection (basic brightness/contrast check)
+                if (simulateFaceDetection(imageData.data)) {
+                    loginFaceDetected = true;
+                    document.getElementById('loginDetectionInfo').classList.add('active');
+                    document.getElementById('loginStatus').innerHTML = `
+                        <div class="status-icon detected">
+                            <i class="fas fa-face-smile"></i>
+                        </div>
+                        <div class="status-text">Face Detected!</div>
+                        <div class="status-subtext">Hold steady for capture ${loginCaptureCount + 1}/${REQUIRED_CAPTURES}</div>
+                    `;
+
+                    // Auto capture
+                    if (loginCaptureCount < REQUIRED_CAPTURES) {
+                        setTimeout(() => {
+                            captureFace('login');
+                        }, 500);
+                    }
+                } else {
+                    loginFaceDetected = false;
+                    document.getElementById('loginDetectionInfo').classList.remove('active');
+                }
+
+                requestAnimationFrame(checkFrame);
+            };
+
+            checkFrame();
+        }
+
+        // Start logout face detection
+        function startLogoutFaceDetection() {
+            const video = document.getElementById('logoutVideo');
+
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
+            })
+            .then(stream => {
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    detectLogoutFace();
+                };
+            })
+            .catch(error => {
+                console.error('Camera error:', error);
+                showMessage('logoutError', 'Unable to access camera. Please check permissions.');
+            });
+        }
+
+        // Detect logout face
+        function detectLogoutFace() {
+            const video = document.getElementById('logoutVideo');
+            const canvas = document.getElementById('logoutCanvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            const checkFrame = () => {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                if (simulateFaceDetection(imageData.data)) {
+                    logoutFaceDetected = true;
+                    document.getElementById('logoutDetectionInfo').classList.add('active');
+                    document.getElementById('logoutStatus').innerHTML = `
+                        <div class="status-icon detected">
+                            <i class="fas fa-face-smile"></i>
+                        </div>
+                        <div class="status-text">Face Detected!</div>
+                        <div class="status-subtext">Hold steady for capture ${logoutCaptureCount + 1}/${REQUIRED_CAPTURES}</div>
+                    `;
+
+                    if (logoutCaptureCount < REQUIRED_CAPTURES) {
+                        setTimeout(() => {
+                            captureFace('logout');
+                        }, 500);
+                    }
+                } else {
+                    logoutFaceDetected = false;
+                    document.getElementById('logoutDetectionInfo').classList.remove('active');
+                }
+
+                requestAnimationFrame(checkFrame);
+            };
+
+            checkFrame();
+        }
+
+        // Simulate face detection
+        function simulateFaceDetection(imageData) {
+            let brightnessSum = 0;
+            for (let i = 0; i < imageData.length; i += 4) {
+                const r = imageData[i];
+                const g = imageData[i + 1];
+                const b = imageData[i + 2];
+                brightnessSum += (r + g + b) / 3;
+            }
+            const avgBrightness = brightnessSum / (imageData.length / 4);
+            return avgBrightness > 30 && avgBrightness < 240;
+        }
+
+        // Capture face
+        function captureFace(type) {
+            if (type === 'login') {
+                if (loginCaptureCount >= REQUIRED_CAPTURES || !loginFaceDetected) return;
+                loginCaptureCount++;
+                updateLoginHistory();
+            } else {
+                if (logoutCaptureCount >= REQUIRED_CAPTURES || !logoutFaceDetected) return;
+                logoutCaptureCount++;
+                updateLogoutHistory();
+            }
+
+            if (type === 'login' && loginCaptureCount === REQUIRED_CAPTURES) {
+                completeLoginCapture();
+            } else if (type === 'logout' && logoutCaptureCount === REQUIRED_CAPTURES) {
+                completeLogoutCapture();
+            }
+        }
+
+        // Update login history
+        function updateLoginHistory() {
+            const progress = (loginCaptureCount / REQUIRED_CAPTURES) * 100;
+            document.getElementById('loginProgress').style.width = progress + '%';
+            document.getElementById('loginHistory').style.display = 'block';
+
+            let html = '';
+            for (let i = 0; i < loginCaptureCount; i++) {
+                html += '<div class="history-item success"><span class="icon"><i class="fas fa-check-circle"></i></span> Capture ' + (i + 1) + '</div>';
+            }
+            document.getElementById('loginHistoryItems').innerHTML = html;
+
+            document.getElementById('loginStatus').innerHTML = `
+                <div class="status-icon detected">
+                    <i class="fas fa-face-smile"></i>
+                </div>
+                <div class="status-text">Face Captured ${loginCaptureCount}/${REQUIRED_CAPTURES}</div>
+                <div class="status-subtext">Keep position for next capture</div>
+            `;
+        }
+
+        // Update logout history
+        function updateLogoutHistory() {
+            const progress = (logoutCaptureCount / REQUIRED_CAPTURES) * 100;
+            document.getElementById('logoutProgress').style.width = progress + '%';
+            document.getElementById('logoutHistory').style.display = 'block';
+
+            let html = '';
+            for (let i = 0; i < logoutCaptureCount; i++) {
+                html += '<div class="history-item success"><span class="icon"><i class="fas fa-check-circle"></i></span> Capture ' + (i + 1) + '</div>';
+            }
+            document.getElementById('logoutHistoryItems').innerHTML = html;
+
+            document.getElementById('logoutStatus').innerHTML = `
+                <div class="status-icon detected">
+                    <i class="fas fa-face-smile"></i>
+                </div>
+                <div class="status-text">Face Captured ${logoutCaptureCount}/${REQUIRED_CAPTURES}</div>
+                <div class="status-subtext">Keep position for next capture</div>
+            `;
+        }
+
+        // Complete login capture
+        function completeLoginCapture() {
+            document.getElementById('loginProgress').style.width = '100%';
+            document.getElementById('loginStatus').innerHTML = `
+                <div class="status-icon detected">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="status-text">Face Verification Complete!</div>
+                <div class="status-subtext">Ready to start your shift</div>
+            `;
+            document.getElementById('loginCompleteBtn').disabled = false;
+        }
+
+        // Complete logout capture
+        function completeLogoutCapture() {
+            document.getElementById('logoutProgress').style.width = '100%';
+            document.getElementById('logoutStatus').innerHTML = `
+                <div class="status-icon detected">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="status-text">Face Verification Complete!</div>
+                <div class="status-subtext">Ready to end your shift</div>
+            `;
+            document.getElementById('logoutCompleteBtn').disabled = false;
+        }
+
+        // Complete login face scan
+        async function completeLoginFaceScan() {
+            if (loginCaptureCount < REQUIRED_CAPTURES) {
+                showMessage('loginError', 'Please complete all face captures');
+                return;
+            }
+
+            driverSession.faceVerified = true;
+            driverSession.shiftStart = new Date().toISOString();
+            localStorage.setItem('driverSession', JSON.stringify(driverSession));
+
+            showMessage('loginSuccess', 'Shift started successfully!');
+            setTimeout(() => {
+                window.location.href = 'driver-dashboard.html';
+            }, 2000);
+        }
+
+        // Complete logout face scan
+        async function completeLogoutFaceScan() {
+            if (logoutCaptureCount < REQUIRED_CAPTURES) {
+                showMessage('logoutError', 'Please complete all face captures');
+                return;
+            }
+
+            driverSession.shiftEnd = new Date().toISOString();
+            localStorage.setItem('driverSession', JSON.stringify(driverSession));
+
+            showMessage('logoutSuccess', 'Shift ended successfully!');
+            setTimeout(() => {
+                logout();
+            }, 2000);
+        }
+
+        // Update shift info
+        function updateShiftInfo() {
+            if (driverSession.shiftStart) {
+                const startTime = new Date(driverSession.shiftStart);
+                const now = new Date();
+                const duration = Math.floor((now - startTime) / 1000 / 60);
+                const hours = Math.floor(duration / 60);
+                const minutes = duration % 60;
+                document.getElementById('shiftDuration').textContent = `Duration: ${hours}h ${minutes}m`;
+            }
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('driverSession');
+                window.location.href = 'driver-login.html';
+            }
+        }
+
+        // Show message
+        function showMessage(elementId, message) {
+            const msgDiv = document.getElementById(elementId);
+            msgDiv.textContent = message;
+            msgDiv.classList.add('active');
+            if (elementId.includes('Error')) {
+                setTimeout(() => msgDiv.classList.remove('active'), 4000);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,13 +1,47 @@
 # Smart Waste Management System
 
-An attractive, real-time web application for monitoring and managing waste collection in residential colonies. Track garbage trucks, monitor household waste disposal, and analyze collection data with an intuitive dashboard.
+An attractive, real-time web application for monitoring and managing waste collection in residential colonies. Track garbage trucks, monitor household waste disposal, manage drivers with biometric authentication, and analyze collection data with an intuitive dashboard.
+
+## Current Status: Production Ready ✅
+
+**Latest Features**:
+- Driver Login System with 4-step authentication (Password → QR Code → Face Recognition Login → Face Recognition Logout)
+- Real-time truck tracking with live GPS updates
+- Household waste monitoring and management
+- Advanced analytics and reporting
+- Multi-language support ready
+- Responsive design for all devices
 
 ## Features
+
+### Driver Login System (NEW)
+- **4-Step Multi-Factor Authentication**:
+  1. Password-based driver authentication
+  2. QR code truck verification
+  3. Facial recognition on login (auto-capture 3 frames)
+  4. Facial recognition on logout (auto-capture 3 frames)
+- **Automatic Face Detection**: No manual clicks needed - system auto-detects and captures faces
+- **Shift Management**: Real-time shift timer, live statistics, truck capacity monitoring
+- **Session Management**: JWT tokens (8-hour expiry), localStorage persistence, auto-redirect
+- **Security Features**: Password hashing, CORS protection, biometric verification
+
+**Quick Access**:
+- Direct URL: `http://localhost:5500/frontend/driver-login.html`
+- From Dashboard: Click "Driver Portal" in sidebar
+
+**Demo Credentials**:
+```
+Driver ID: D001, Truck ID: T001, Password: driver123 (Ramesh Kumar)
+Driver ID: D002, Truck ID: T002, Password: driver123 (Ravi Singh)
+Driver ID: D003, Truck ID: T003, Password: driver123 (Yallappa)
+Driver ID: D004, Truck ID: T004, Password: driver123 (Pradeep Kumar)
+```
 
 ### Dashboard
 - **Real-time Statistics**: View active trucks, total waste collected, household count, and daily collections
 - **Activity Feed**: Monitor recent activities including collections, truck movements, and alerts
-- **Quick Actions**: Fast access to truck tracking, household management, and report generation
+- **Quick Actions**: Fast access to truck tracking, household management, driver portal, and report generation
+- **Driver Portal Link**: Easy navigation to driver authentication system
 
 ### Live Truck Tracking
 - **Real-time GPS Tracking**: Monitor garbage truck locations on an interactive map
@@ -36,50 +70,164 @@ An attractive, real-time web application for monitoring and managing waste colle
 ## Getting Started
 
 ### Prerequisites
-- A modern web browser (Chrome, Firefox, Safari, or Edge)
-- Internet connection (for loading external libraries)
+- Node.js v14+ and npm
+- MongoDB (local or remote)
+- Modern web browser (Chrome/Firefox recommended for face recognition)
+- Webcam for driver face recognition feature
 
 ### Installation
 
-1. **Clone or download** the repository to your local machine
-
-2. **Navigate** to the project directory:
+1. **Clone the repository**:
    ```bash
+   git clone https://github.com/Mahesharunaladi/smart-waste-management.git
    cd smart-waste-management-1
    ```
 
-3. **Open** `index.html` in your web browser:
-   - Double-click the file, or
-   - Right-click and select "Open with" your preferred browser, or
-   - Use a local server (recommended):
-     ```bash
-     # Using Python
-     python -m http.server 8000
-     
-     # Using Node.js (http-server)
-     npx http-server
-     ```
+2. **Install Backend Dependencies**:
+   ```bash
+   cd backend
+   npm install
+   ```
 
-4. **Access** the application at:
-   - Direct: `file:///path/to/index.html`
-   - Local server: `http://localhost:8000`
+3. **Install Frontend Dependencies** (if using Node server):
+   ```bash
+   cd ../frontend
+   npm install
+   ```
+
+4. **Configure Environment** (Backend):
+   Create `.env` file in `/backend` folder:
+   ```
+   MONGODB_URI=mongodb://localhost:27017/smartwaste
+   PORT=3002
+   JWT_SECRET=your-secret-key
+   NODE_ENV=development
+   ```
+
+5. **Start Backend Server**:
+   ```bash
+   cd backend
+   PORT=3002 npm start
+   ```
+   Expected Output:
+   ```
+   ✅ MongoDB Connected Successfully
+   🚀 Server running on port 3002
+   ```
+
+6. **Start Frontend Server** (in another terminal):
+   ```bash
+   cd frontend
+   npm start
+   ```
+   Or use Python:
+   ```bash
+   cd frontend
+   python -m http.server 5500
+   ```
+
+7. **Access the Application**:
+   - Main Dashboard: `http://localhost:5500/frontend/index.html`
+   - Driver Login: `http://localhost:5500/frontend/driver-login.html`
+
+### Quick Start (5 Minutes)
+
+```bash
+# Terminal 1 - Start Backend
+cd backend && PORT=3002 npm start
+
+# Terminal 2 - Start Frontend
+cd frontend && npm start
+
+# Then open browser to:
+# http://localhost:5500/frontend/driver-login.html
+# Use: D001 / T001 / driver123
+```
 
 ## Project Structure
 
 ```
 smart-waste-management-1/
-├── index.html          # Main HTML structure
-├── styles.css          # Complete styling and responsive design
-├── app.js              # JavaScript logic and data management
-└── README.md           # Project documentation
+├── backend/
+│   ├── routes/
+│   │   ├── auth.js              # Admin authentication
+│   │   ├── driver-auth.js       # Driver authentication & face recognition
+│   │   ├── trucks.js            # Truck management
+│   │   ├── households.js        # Household management
+│   │   ├── activities.js        # Activity logs
+│   │   └── analytics.js         # Analytics data
+│   ├── models/
+│   │   ├── Admin.js             # Admin model
+│   │   ├── Truck.js             # Truck model
+│   │   ├── Household.js         # Household model
+│   │   └── Activity.js          # Activity model
+│   ├── middleware/
+│   │   └── auth.js              # JWT authentication middleware
+│   ├── server.js                # Express server setup
+│   ├── package.json             # Backend dependencies
+│   └── README.md                # Backend documentation
+├── frontend/
+│   ├── index.html               # Main dashboard
+│   ├── dashboard.html           # Admin dashboard
+│   ├── live-tracking.html       # Truck tracking page
+│   ├── driver-login.html        # Driver authentication
+│   ├── driver-qr-scan.html      # QR code verification
+│   ├── driver-face-scan.html    # Facial recognition
+│   ├── driver-dashboard.html    # Driver shift management
+│   ├── login.html               # Admin login
+│   ├── styles.css               # Global styles
+│   ├── app.js                   # Main application logic
+│   ├── dashboard.js             # Dashboard logic
+│   └── package.json             # Frontend dependencies
+├── DOCUMENTATION files
+│   ├── DRIVER_LOGIN_STATUS.md
+│   ├── DRIVER_LOGIN_ACCESS.md
+│   ├── DRIVER_SYSTEM_ARCHITECTURE.md
+│   ├── DRIVER_LOGIN_DOCUMENTATION.md
+│   ├── DRIVER_LOGIN_SETUP.md
+│   ├── DRIVER_LOGIN_VISUAL_GUIDE.md
+│   ├── QUICK_START_DRIVER.md
+│   └── More...
+├── README.md                    # This file
+└── start.sh                     # Startup script
 ```
 
 ## Features Breakdown
+
+### Driver Authentication & Login System
+
+#### Step 1: Password-Based Login
+- Driver enters credentials (ID, Truck ID, Password)
+- Backend validates against MongoDB
+- JWT token generated on success
+- Session stored in browser localStorage
+
+#### Step 2: QR Code Truck Verification
+- Camera stream opened automatically
+- Real-time QR code detection using jsQR library
+- Validates truck identity via QR format: `TRUCK_{ID}_VERIFIED`
+- Ensures driver is assigned to correct truck
+
+#### Step 3: Facial Recognition - Login
+- Automatic face detection (no manual activation)
+- Real-time brightness/contrast analysis
+- Auto-captures 3 frames when face detected
+- Shows progress: "Capturing... 1/3, 2/3, 3/3"
+- Face data stored in localStorage
+- Green checkmark on successful capture
+
+#### Step 4: Facial Recognition - Logout
+- Same process as login but in Logout tab
+- Compares captured faces for consistency
+- Records shift duration
+- Clears all session data
+- Redirects to login page
 
 ### Dashboard Section
 - 4 statistics cards showing key metrics
 - Recent activity timeline
 - Quick action buttons for common tasks
+- Driver Portal link for quick access
 
 ### Truck Tracking Section
 - Split-screen layout with truck list and map
@@ -87,6 +235,7 @@ smart-waste-management-1/
 - Truck status indicators (Active/Idle)
 - Capacity levels and route information
 - Interactive markers with popups
+- GPS coordinates and movement tracking
 
 ### Households Section
 - Grid layout with household cards
@@ -98,19 +247,67 @@ smart-waste-management-1/
 - Search functionality
 - Status-based filtering
 
-### Analytics Section
-- Line chart: 7-day waste collection trends
-- Doughnut chart: Household compliance distribution
-- Top 5 contributors leaderboard with rankings
-
 ## Technologies Used
 
-- **HTML5**: Semantic structure
-- **CSS3**: Modern styling with gradients, animations, and flexbox/grid layouts
+### Frontend
+- **HTML5**: Semantic structure and accessibility
+- **CSS3**: Modern styling with gradients, animations, flexbox, and grid layouts
 - **JavaScript (ES6+)**: Interactive functionality and data management
-- **Leaflet.js**: Interactive maps and markers
-- **Chart.js**: Data visualization and charts
+- **Leaflet.js**: Interactive maps and truck tracking
+- **Chart.js**: Data visualization and analytics
+- **jsQR**: QR code scanning and detection
+- **tracking.js**: Face detection algorithm
 - **Font Awesome**: Icons throughout the interface
+
+### Backend
+- **Node.js**: JavaScript runtime
+- **Express.js**: Web framework and API routing
+- **MongoDB**: NoSQL database
+- **Mongoose**: MongoDB ODM
+- **JWT (jsonwebtoken)**: Secure token authentication
+- **bcryptjs**: Password hashing and encryption
+- **CORS**: Cross-origin resource sharing
+- **dotenv**: Environment variable management
+
+### Database Models
+- **Admin**: User profiles and roles
+- **Truck**: Vehicle information and tracking
+- **Household**: Resident data and waste tracking
+- **Activity**: Event logging and monitoring
+
+### APIs Implemented
+
+**Authentication Endpoints**:
+```
+POST /api/auth/login              - Admin login
+POST /api/auth/driver-login       - Driver authentication
+POST /api/auth/verify-qr          - QR code verification
+POST /api/auth/capture-face       - Face recognition capture
+POST /api/auth/end-shift          - Shift termination
+```
+
+**Truck Management**:
+```
+GET /api/trucks                   - Get all trucks
+GET /api/trucks/:id               - Get truck details
+PUT /api/trucks/:id               - Update truck
+PUT /api/trucks/:id/driver        - Update driver info
+```
+
+**Household Management**:
+```
+GET /api/households               - Get all households
+GET /api/households/:id           - Get household details
+POST /api/households              - Create household
+PUT /api/households/:id           - Update household
+```
+
+**Analytics & Reporting**:
+```
+GET /api/analytics/summary        - Get dashboard statistics
+GET /api/analytics/trends         - Get collection trends
+GET /api/activities               - Get activity logs
+```
 
 ## Responsive Design
 

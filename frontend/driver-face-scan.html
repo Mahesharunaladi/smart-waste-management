@@ -768,7 +768,9 @@
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
                 localStorage.removeItem('driverSession');
-                window.location.href = 'driver-login.html';
+                // After logout, redirect to login page
+                // Driver will need to login and do face recognition again
+                window.location.href = 'login.html';
             }
         }
 

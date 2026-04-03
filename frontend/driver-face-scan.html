@@ -386,7 +386,7 @@
             </div>
 
             <!-- Logout Tab -->
-            <div class="tab-content" id="logoutTab">
+            <div class="tab-content" id="logoutTab" style="display: none;">
                 <div class="shift-info" id="shiftInfo">
                     <p><strong>Shift Active:</strong> Yes</p>
                     <p id="shiftDuration">Duration: 0h 0m</p>
@@ -463,22 +463,27 @@
                 // Start logout face detection directly
                 setTimeout(() => {
                     console.log('Switching to logout tab');
-                    // Manually switch to logout tab
-                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
                     
-                    // Find and activate logout tab button
+                    // Hide all tabs first
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.style.display = 'none';
+                        content.classList.remove('active');
+                    });
+                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    
+                    // Show logout tab
+                    const logoutTab = document.getElementById('logoutTab');
+                    if (logoutTab) {
+                        console.log('Found logout tab, showing it');
+                        logoutTab.style.display = 'block';
+                        logoutTab.classList.add('active');
+                    }
+                    
+                    // Activate logout button
                     const logoutBtn = document.querySelector('button[onclick="switchTab(\'logout\')"]');
                     if (logoutBtn) {
                         console.log('Found logout button, activating');
                         logoutBtn.classList.add('active');
-                    }
-                    
-                    // Activate logout tab content
-                    const logoutTab = document.getElementById('logoutTab');
-                    if (logoutTab) {
-                        console.log('Found logout tab, activating');
-                        logoutTab.classList.add('active');
                     }
                     
                     // Start logout detection
@@ -497,9 +502,16 @@
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
-            // Update content
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(tab + 'Tab').classList.add('active');
+            // Update content - hide all, then show selected
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+                content.style.display = 'none';
+            });
+            const tabElement = document.getElementById(tab + 'Tab');
+            if (tabElement) {
+                tabElement.classList.add('active');
+                tabElement.style.display = 'block';
+            }
 
             // Stop previous cameras
             stopAllCameras();

@@ -81,6 +81,7 @@
 
         .tab-content {
             display: none;
+            min-height: 600px;
         }
 
         .tab-content.active {
@@ -94,6 +95,8 @@
             overflow: hidden;
             margin-bottom: 20px;
             aspect-ratio: 4/3;
+            min-height: 400px;
+            width: 100%;
         }
 
         video, canvas {
@@ -349,7 +352,7 @@
                 <div class="message error" id="loginError"></div>
 
                 <div class="camera-wrapper" id="loginCameraWrapper">
-                    <video id="loginVideo" autoplay></video>
+                    <video id="loginVideo" autoplay playsinline muted></video>
                     <canvas id="loginCanvas"></canvas>
                     <div class="face-detection-info" id="loginDetectionInfo">
                         <i class="fas fa-face-smile"></i> Face Detected
@@ -400,7 +403,7 @@
                 <div class="message error" id="logoutError"></div>
 
                 <div class="camera-wrapper" id="logoutCameraWrapper">
-                    <video id="logoutVideo" autoplay></video>
+                    <video id="logoutVideo" autoplay playsinline muted></video>
                     <canvas id="logoutCanvas"></canvas>
                     <div class="face-detection-info" id="logoutDetectionInfo">
                         <i class="fas fa-face-smile"></i> Face Detected

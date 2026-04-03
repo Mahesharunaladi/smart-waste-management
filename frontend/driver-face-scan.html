@@ -454,13 +454,12 @@
             }
             driverSession = JSON.parse(session);
 
-            initializeFaceDetection();
             updateShiftInfo();
 
             // Check if this is a logout mode request
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('mode') === 'logout') {
-                // Auto-switch to logout tab after a short delay
+                // Start logout face detection directly
                 setTimeout(() => {
                     // Manually switch to logout tab
                     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -478,12 +477,12 @@
                         logoutTab.classList.add('active');
                     }
                     
-                    // Stop previous camera and start logout detection
-                    stopAllCameras();
-                    setTimeout(() => {
-                        startLogoutFaceDetection();
-                    }, 300);
-                }, 300);
+                    // Start logout detection
+                    startLogoutFaceDetection();
+                }, 500);
+            } else {
+                // Start login face detection by default
+                initializeFaceDetection();
             }
         });
 

@@ -604,15 +604,31 @@
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
 
-                // Simple face detection: check if center area is not too dark
-                let brightness = 0;
-                const centerStartIdx = (canvas.height / 2) * canvas.width * 4;
-                for (let i = centerStartIdx; i < centerStartIdx + canvas.width * 4; i += 4) {
-                    brightness += (data[i] + data[i + 1] + data[i + 2]) / 3;
+                // Simple face detection: check center region brightness
+                let totalBrightness = 0;
+                let pixelCount = 0;
+                
+                // Check center area (middle 50% of image)
+                const startX = Math.floor(canvas.width * 0.25);
+                const startY = Math.floor(canvas.height * 0.25);
+                const endX = Math.floor(canvas.width * 0.75);
+                const endY = Math.floor(canvas.height * 0.75);
+                
+                for (let y = startY; y < endY; y++) {
+                    for (let x = startX; x < endX; x++) {
+                        const idx = (y * canvas.width + x) * 4;
+                        const r = data[idx];
+                        const g = data[idx + 1];
+                        const b = data[idx + 2];
+                        totalBrightness += (r + g + b) / 3;
+                        pixelCount++;
+                    }
                 }
-                brightness /= canvas.width;
-
-                const faceDetected = brightness > 80;
+                
+                const avgBrightness = pixelCount > 0 ? totalBrightness / pixelCount : 0;
+                
+                // Face detected if average brightness is reasonable (not too dark, not too bright)
+                const faceDetected = avgBrightness > 40 && avgBrightness < 240;
 
                 if (faceDetected) {
                     document.getElementById('loginFaceIndicator').classList.add('active');
@@ -741,15 +757,31 @@
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
 
-                // Simple face detection: check if center area is not too dark
-                let brightness = 0;
-                const centerStartIdx = (canvas.height / 2) * canvas.width * 4;
-                for (let i = centerStartIdx; i < centerStartIdx + canvas.width * 4; i += 4) {
-                    brightness += (data[i] + data[i + 1] + data[i + 2]) / 3;
+                // Simple face detection: check center region brightness
+                let totalBrightness = 0;
+                let pixelCount = 0;
+                
+                // Check center area (middle 50% of image)
+                const startX = Math.floor(canvas.width * 0.25);
+                const startY = Math.floor(canvas.height * 0.25);
+                const endX = Math.floor(canvas.width * 0.75);
+                const endY = Math.floor(canvas.height * 0.75);
+                
+                for (let y = startY; y < endY; y++) {
+                    for (let x = startX; x < endX; x++) {
+                        const idx = (y * canvas.width + x) * 4;
+                        const r = data[idx];
+                        const g = data[idx + 1];
+                        const b = data[idx + 2];
+                        totalBrightness += (r + g + b) / 3;
+                        pixelCount++;
+                    }
                 }
-                brightness /= canvas.width;
-
-                const faceDetected = brightness > 80;
+                
+                const avgBrightness = pixelCount > 0 ? totalBrightness / pixelCount : 0;
+                
+                // Face detected if average brightness is reasonable (not too dark, not too bright)
+                const faceDetected = avgBrightness > 40 && avgBrightness < 240;
 
                 if (faceDetected) {
                     document.getElementById('logoutFaceIndicator').classList.add('active');

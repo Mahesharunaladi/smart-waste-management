@@ -571,7 +571,7 @@
         function detectLoginFace() {
             const video = document.getElementById('loginVideo');
             const canvas = document.getElementById('loginCanvas');
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
@@ -641,7 +641,7 @@
         function detectLogoutFace() {
             const video = document.getElementById('logoutVideo');
             const canvas = document.getElementById('logoutCanvas');
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;

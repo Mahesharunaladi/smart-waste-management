@@ -461,6 +461,18 @@
 
             initializeFaceDetection();
             updateShiftInfo();
+
+            // Check if this is a logout mode request
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('mode') === 'logout') {
+                // Auto-switch to logout tab
+                setTimeout(() => {
+                    const logoutBtn = document.querySelector('button[onclick="switchTab(\'logout\')"]');
+                    if (logoutBtn) {
+                        logoutBtn.click();
+                    }
+                }, 500);
+            }
         });
 
         // Switch tabs

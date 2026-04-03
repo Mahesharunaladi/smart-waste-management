@@ -477,6 +477,9 @@
         let loginCaptureCount = 0;
         let logoutCaptureCount = 0;
         const CAPTURES_REQUIRED = 3;
+        let lastLoginCaptureTime = 0;
+        let lastLogoutCaptureTime = 0;
+        const CAPTURE_DELAY = 1000; // 1 second between captures
 
         // Initialize on page load
         window.addEventListener('load', () => {
@@ -575,6 +578,7 @@
 
         function resetLoginCaptures() {
             loginCaptureCount = 0;
+            lastLoginCaptureTime = 0;
             window.loginFaceWasDetected = false;
             document.getElementById('loginProgress').style.width = '0%';
             document.getElementById('loginCapturesInfo').classList.remove('show');
@@ -654,7 +658,11 @@
 
         function captureLoginFace() {
             if (loginCaptureCount >= CAPTURES_REQUIRED) return;
-
+            
+            const now = Date.now();
+            if (now - lastLoginCaptureTime < CAPTURE_DELAY) return;
+            
+            lastLoginCaptureTime = now;
             loginCaptureCount++;
             console.log('Login face captured:', loginCaptureCount);
 
@@ -726,6 +734,7 @@
 
         function resetLogoutCaptures() {
             logoutCaptureCount = 0;
+            lastLogoutCaptureTime = 0;
             window.logoutFaceWasDetected = false;
             document.getElementById('logoutProgress').style.width = '0%';
             document.getElementById('logoutCapturesInfo').classList.remove('show');
@@ -807,7 +816,11 @@
 
         function captureLogoutFace() {
             if (logoutCaptureCount >= CAPTURES_REQUIRED) return;
-
+            
+            const now = Date.now();
+            if (now - lastLogoutCaptureTime < CAPTURE_DELAY) return;
+            
+            lastLogoutCaptureTime = now;
             logoutCaptureCount++;
             console.log('Logout face captured:', logoutCaptureCount);
 

@@ -458,11 +458,6 @@
                 return;
             }
             driverSession = JSON.parse(session);
-            
-            if (!driverSession.qrVerified) {
-                window.location.href = 'driver-qr-scan.html';
-                return;
-            }
 
             initializeFaceDetection();
             updateShiftInfo();

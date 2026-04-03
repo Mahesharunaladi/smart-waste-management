@@ -460,13 +460,30 @@
             // Check if this is a logout mode request
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('mode') === 'logout') {
-                // Auto-switch to logout tab
+                // Auto-switch to logout tab after a short delay
                 setTimeout(() => {
+                    // Manually switch to logout tab
+                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    
+                    // Find and activate logout tab button
                     const logoutBtn = document.querySelector('button[onclick="switchTab(\'logout\')"]');
                     if (logoutBtn) {
-                        logoutBtn.click();
+                        logoutBtn.classList.add('active');
                     }
-                }, 500);
+                    
+                    // Activate logout tab content
+                    const logoutTab = document.getElementById('logoutTab');
+                    if (logoutTab) {
+                        logoutTab.classList.add('active');
+                    }
+                    
+                    // Stop previous camera and start logout detection
+                    stopAllCameras();
+                    setTimeout(() => {
+                        startLogoutFaceDetection();
+                    }, 300);
+                }, 300);
             }
         });
 

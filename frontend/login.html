@@ -644,9 +644,9 @@
 
                     showAlert('Login successful! Redirecting...', 'success');
 
-                    // Redirect to QR scan page
+                    // Redirect to face recognition page
                     setTimeout(() => {
-                        window.location.href = 'driver-qr-scan.html';
+                        window.location.href = 'driver-face-scan.html';
                     }, 1500);
                 } else {
                     showAlert(data.message || 'Driver login failed. Please check your credentials.');

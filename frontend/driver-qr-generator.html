@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver QR Code Generator - Smart Waste Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #10b981;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .qr-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .qr-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .qr-card h3 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .qr-info {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .qr-code-container {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            min-height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-code-container canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .truck-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #059669;
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: #06b6d4;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #0891b2;
+            transform: scale(1.05);
+        }
+
+        .btn-print {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-print:hover {
+            background: #d97706;
+            transform: scale(1.05);
+        }
+
+        .print-section {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 9999;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .print-section.active {
+            display: block;
+        }
+
+        .print-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            z-index: 10000;
+        }
+
+        .print-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .print-card {
+            page-break-inside: avoid;
+            border: 2px solid #10b981;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .print-card h3 {
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .print-card .qr-code-container {
+            min-height: auto;
+            padding: 15px;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .print-section {
+                position: static;
+                padding: 0;
+            }
+
+            .print-close {
+                display: none;
+            }
+
+            .print-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .print-card {
+                page-break-inside: avoid;
+            }
+        }
+
+        .instructions {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .instructions h3 {
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            color: #1e40af;
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .driver-cards-grid {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .driver-cards-grid h2 {
+            color: #1f2937;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .driver-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .driver-item {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #10b981;
+            transition: all 0.3s;
+        }
+
+        .driver-item:hover {
+            background: #f0fdf4;
+            transform: translateX(5px);
+        }
+
+        .driver-item h4 {
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .driver-item p {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin: 3px 0;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #059669;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .qr-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .print-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <i class="fas fa-qrcode" style="font-size: 3rem; color: #10b981; margin-bottom: 15px;"></i>
+            <h1>Driver QR Code Generator</h1>
+            <p>Generate and print QR codes for truck verification</p>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> How to Use</h3>
+            <ul>
+                <li>Each driver has a unique QR code linked to their truck</li>
+                <li>Print or display the QR codes on the trucks</li>
+                <li>Drivers scan their truck's QR code during login</li>
+                <li>Use "Download QR" to save individual codes</li>
+                <li>Use "Print All" to print all driver QR codes at once</li>
+            </ul>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="successMsg">
+            <i class="fas fa-check-circle"></i> QR code downloaded successfully!
+        </div>
+
+        <!-- Driver Summary -->
+        <div class="driver-cards-grid">
+            <h2>All Drivers & Trucks</h2>
+            <div class="driver-list" id="driverList"></div>
+        </div>
+
+        <!-- QR Codes Grid -->
+        <div class="qr-grid" id="qrGrid"></div>
+
+        <!-- Print Section -->
+        <div class="print-section" id="printSection">
+            <button class="print-close" onclick="closePrintView()">
+                <i class="fas fa-times"></i> Close
+            </button>
+            <div style="text-align: center; margin-top: 40px;">
+                <h1>Driver QR Codes - Smart Waste Management</h1>
+                <p>Print this document to get all driver QR codes</p>
+                <button onclick="window.print()" class="btn btn-print" style="margin: 20px 0;">
+                    <i class="fas fa-print"></i> Print Now
+                </button>
+            </div>
+            <div class="print-grid" id="printGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        // Driver and truck data
+        const drivers = [
+            {
+                id: 'D001',
+                name: 'Ramesh Kumar',
+                truckId: 'T001',
+                phone: '9742583104'
+            },
+            {
+                id: 'D002',
+                name: 'Ravi Singh',
+                truckId: 'T002',
+                phone: '9876543211'
+            },
+            {
+                id: 'D003',
+                name: 'Yallappa',
+                truckId: 'T003',
+                phone: '9880272001'
+            },
+            {
+                id: 'D004',
+                name: 'Pradeep Kumar',
+                truckId: 'T004',
+                phone: '9876543213'
+            }
+        ];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            generateDriverList();
+            generateQRCodes();
+        });
+
+        // Generate driver list
+        function generateDriverList() {
+            const driverList = document.getElementById('driverList');
+            driverList.innerHTML = drivers.map(driver => `
+                <div class="driver-item">
+                    <h4><i class="fas fa-user-tie"></i> ${driver.name}</h4>
+                    <p><strong>Driver ID:</strong> ${driver.id}</p>
+                    <p><strong>Truck ID:</strong> ${driver.truckId}</p>
+                    <p><strong>Phone:</strong> ${driver.phone}</p>
+                </div>
+            `).join('');
+        }
+
+        // Generate QR codes
+        function generateQRCodes() {
+            const qrGrid = document.getElementById('qrGrid');
+            const printGrid = document.getElementById('printGrid');
+
+            qrGrid.innerHTML = '';
+            printGrid.innerHTML = '';
+
+            drivers.forEach((driver, index) => {
+                const qrData = `TRUCK_${driver.truckId}_VERIFIED`;
+                const containerId = `qr-${driver.id}`;
+                const printContainerId = `print-qr-${driver.id}`;
+
+                // Main QR card
+                const card = document.createElement('div');
+                card.className = 'qr-card';
+                card.innerHTML = `
+                    <h3><i class="fas fa-user-tie"></i> ${driver.name}</h3>
+                    <div class="qr-info">
+                        <p><strong>Driver ID:</strong> ${driver.id}</p>
+                        <p><strong>Truck ID:</strong> <span class="truck-badge">${driver.truckId}</span></p>
+                    </div>
+                    <div class="qr-code-container" id="${containerId}"></div>
+                    <p style="color: #6b7280; font-size: 0.85rem; margin-top: 10px;">
+                        <strong>QR Data:</strong> ${qrData}
+                    </p>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="downloadQR('${driver.id}', '${driver.name}')">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                        <button class="btn btn-secondary" onclick="shareQR('${driver.id}')">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                    </div>
+                `;
+                qrGrid.appendChild(card);
+
+                // Print QR card
+                const printCard = document.createElement('div');
+                printCard.className = 'print-card';
+                printCard.innerHTML = `
+                    <h3>${driver.name}</h3>
+                    <p><strong>Driver:</strong> ${driver.id} | <strong>Truck:</strong> ${driver.truckId}</p>
+                    <div class="qr-code-container" id="${printContainerId}"></div>
+                `;
+                printGrid.appendChild(printCard);
+
+                // Generate QR codes
+                new QRCode(document.getElementById(containerId), {
+                    text: qrData,
+                    width: 300,
+                    height: 300,
+                    colorDark: '#10b981',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                new QRCode(document.getElementById(printContainerId), {
+                    text: qrData,
+                    width: 250,
+                    height: 250,
+                    colorDark: '#10b981',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            });
+        }
+
+        // Download QR code
+        function downloadQR(driverId, driverName) {
+            const canvas = document.querySelector(`#qr-${driverId} canvas`);
+            if (canvas) {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `QR_${driverName}_${driverId}.png`;
+                link.click();
+                
+                showSuccess('QR code downloaded successfully!');
+            }
+        }
+
+        // Share QR code (copy to clipboard)
+        function shareQR(driverId) {
+            const canvas = document.querySelector(`#qr-${driverId} canvas`);
+            if (canvas) {
+                canvas.toBlob(blob => {
+                    const item = new ClipboardItem({ 'image/png': blob });
+                    navigator.clipboard.write([item]).then(() => {
+                        showSuccess('QR code copied to clipboard!');
+                    }).catch(err => {
+                        console.error('Failed to copy:', err);
+                        alert('Failed to copy QR code to clipboard');
+                    });
+                });
+            }
+        }
+
+        // Print all QR codes
+        function printAllQRs() {
+            const printSection = document.getElementById('printSection');
+            printSection.classList.add('active');
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        }
+
+        // Close print view
+        function closePrintView() {
+            document.getElementById('printSection').classList.remove('active');
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const msg = document.getElementById('successMsg');
+            msg.textContent = `✓ ${message}`;
+            msg.classList.add('show');
+            setTimeout(() => {
+                msg.classList.remove('show');
+            }, 3000);
+        }
+
+        // Add print all button
+        window.addEventListener('load', () => {
+            const header = document.querySelector('.header');
+            const printBtn = document.createElement('button');
+            printBtn.className = 'btn btn-print';
+            printBtn.style.marginTop = '20px';
+            printBtn.onclick = printAllQRs;
+            printBtn.innerHTML = '<i class="fas fa-print"></i> Print All QR Codes';
+            header.appendChild(printBtn);
+        });
+    </script>
+</body>
+</html>

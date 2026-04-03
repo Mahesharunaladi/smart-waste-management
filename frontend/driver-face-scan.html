@@ -82,12 +82,15 @@
         }
 
         .tab-content {
-            display: none;
+            display: none !important;
             min-height: auto;
+            width: 100%;
         }
 
         .tab-content.active {
-            display: block;
+            display: block !important;
+            width: 100%;
+            height: auto;
         }
 
         .camera-wrapper {
@@ -469,37 +472,34 @@
                 setTimeout(() => {
                     console.log('Switching to logout tab');
                     
-                    // Hide all tabs first
+                    // Hide all tabs first - remove active class
                     document.querySelectorAll('.tab-content').forEach(content => {
                         content.classList.remove('active');
-                        content.style.display = 'none !important';
                     });
                     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
                     
                     // Show logout tab
                     const logoutTab = document.getElementById('logoutTab');
-                    if (logoutTab) {
-                        console.log('Found logout tab, showing it');
-                        logoutTab.classList.add('active');
-                        logoutTab.style.display = 'block !important';
-                        logoutTab.style.visibility = 'visible';
-                        logoutTab.style.opacity = '1';
-                    }
-                    
-                    // Activate logout button
                     const logoutBtn = document.querySelector('button[onclick="switchTab(\'logout\')"]');
-                    if (logoutBtn) {
-                        console.log('Found logout button, activating');
-                        logoutBtn.classList.add('active');
-                    }
                     
-                    // Scroll to ensure content is visible
-                    setTimeout(() => {
-                        const logoutTab = document.getElementById('logoutTab');
-                        if (logoutTab) {
+                    if (logoutTab && logoutBtn) {
+                        console.log('Found logout tab and button, activating');
+                        logoutTab.classList.add('active');
+                        logoutBtn.classList.add('active');
+                        
+                        // Verify the tab is now visible
+                        console.log('Logout tab active class added');
+                        console.log('Tab display:', window.getComputedStyle(logoutTab).display);
+                        
+                        // Scroll to tab after small delay
+                        setTimeout(() => {
+                            const rect = logoutTab.getBoundingClientRect();
+                            console.log('Logout tab position - top:', rect.top, 'height:', rect.height);
                             logoutTab.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                    }, 100);
+                        }, 100);
+                    } else {
+                        console.error('Could not find logout tab or button');
+                    }
                     
                     // Start logout detection
                     console.log('Starting logout face detection');
@@ -513,6 +513,8 @@
 
         // Switch tabs
         function switchTab(tab) {
+            console.log('Switching to tab:', tab);
+            
             // Update buttons
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
@@ -520,18 +522,20 @@
             // Update content - hide all, then show selected
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
-                content.style.display = 'none';
-                content.style.visibility = 'hidden';
             });
+            
             const tabElement = document.getElementById(tab + 'Tab');
+            console.log('Tab element:', tabElement);
+            
             if (tabElement) {
+                console.log('Adding active class to tab');
                 tabElement.classList.add('active');
-                tabElement.style.display = 'block';
-                tabElement.style.visibility = 'visible';
-                tabElement.style.opacity = '1';
                 
-                // Scroll to show the tab content
+                // Give DOM time to apply CSS changes
                 setTimeout(() => {
+                    console.log('Scrolling tab into view');
+                    const rect = tabElement.getBoundingClientRect();
+                    console.log('Tab element rect:', rect);
                     tabElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 50);
             }
@@ -541,8 +545,10 @@
 
             // Start new camera
             if (tab === 'login') {
+                console.log('Starting login face detection');
                 startLoginFaceDetection();
             } else {
+                console.log('Starting logout face detection');
                 startLogoutFaceDetection();
             }
         }

@@ -391,7 +391,7 @@
             </div>
 
             <!-- Logout Tab -->
-            <div class="tab-content" id="logoutTab" style="display: none;">
+            <div class="tab-content" id="logoutTab">
                 <div class="shift-info" id="shiftInfo">
                     <p><strong>Shift Active:</strong> Yes</p>
                     <p id="shiftDuration">Duration: 0h 0m</p>
@@ -471,8 +471,8 @@
                     
                     // Hide all tabs first
                     document.querySelectorAll('.tab-content').forEach(content => {
-                        content.style.display = 'none';
                         content.classList.remove('active');
+                        content.style.display = 'none !important';
                     });
                     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
                     
@@ -480,8 +480,8 @@
                     const logoutTab = document.getElementById('logoutTab');
                     if (logoutTab) {
                         console.log('Found logout tab, showing it');
-                        logoutTab.style.display = 'block';
                         logoutTab.classList.add('active');
+                        logoutTab.style.display = 'block !important';
                     }
                     
                     // Activate logout button

@@ -3,7 +3,9 @@ const fs = require('fs');
 const path = require('path');
 
 const server = http.createServer((req, res) => {
-    let filePath = path.join(__dirname, req.url === '/' ? 'login.html' : req.url);
+    // Remove query parameters from URL
+    let url = req.url.split('?')[0];
+    let filePath = path.join(__dirname, url === '/' ? 'login.html' : url);
 
     // Security: prevent directory traversal
     if (!filePath.startsWith(__dirname)) {

@@ -482,6 +482,8 @@
                         console.log('Found logout tab, showing it');
                         logoutTab.classList.add('active');
                         logoutTab.style.display = 'block !important';
+                        logoutTab.style.visibility = 'visible';
+                        logoutTab.style.opacity = '1';
                     }
                     
                     // Activate logout button
@@ -490,6 +492,14 @@
                         console.log('Found logout button, activating');
                         logoutBtn.classList.add('active');
                     }
+                    
+                    // Scroll to ensure content is visible
+                    setTimeout(() => {
+                        const logoutTab = document.getElementById('logoutTab');
+                        if (logoutTab) {
+                            logoutTab.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }, 100);
                     
                     // Start logout detection
                     console.log('Starting logout face detection');
@@ -511,11 +521,19 @@
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
                 content.style.display = 'none';
+                content.style.visibility = 'hidden';
             });
             const tabElement = document.getElementById(tab + 'Tab');
             if (tabElement) {
                 tabElement.classList.add('active');
                 tabElement.style.display = 'block';
+                tabElement.style.visibility = 'visible';
+                tabElement.style.opacity = '1';
+                
+                // Scroll to show the tab content
+                setTimeout(() => {
+                    tabElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 50);
             }
 
             // Stop previous cameras

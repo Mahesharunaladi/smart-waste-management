@@ -691,7 +691,10 @@
             stopAllCameras();
 
             // Update session
-            driverSession.loginTime = new Date().toISOString();
+            const now = new Date().toISOString();
+            driverSession.loginTime = now;
+            driverSession.shiftStart = now;
+            driverSession.faceVerified = true;
             localStorage.setItem('driverSession', JSON.stringify(driverSession));
 
             // Redirect to dashboard

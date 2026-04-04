@@ -600,6 +600,7 @@
 
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
+            let faceDetectedFrames = 0;
 
             const detect = () => {
                 if (!video.srcObject) return;
@@ -631,23 +632,24 @@
                 
                 const avgBrightness = pixelCount > 0 ? totalBrightness / pixelCount : 0;
                 
-                // Face detected if average brightness is reasonable (not too dark, not too bright)
+                // Face detected if average brightness is reasonable
                 const faceDetected = avgBrightness > 40 && avgBrightness < 240;
 
                 if (faceDetected) {
+                    faceDetectedFrames++;
                     document.getElementById('loginFaceIndicator').classList.add('active');
                     document.getElementById('loginStatusIcon').classList.add('success');
-                    document.getElementById('loginStatusText').textContent = 'Face Detected';
-
-                    if (!window.loginFaceWasDetected) {
-                        window.loginFaceWasDetected = true;
+                    document.getElementById('loginStatusText').textContent = 'Face Detected (' + loginCaptureCount + '/3)';
+                    
+                    // Capture every 30 frames (approximately 1 second at 30fps)
+                    if (faceDetectedFrames % 30 === 0 && loginCaptureCount < CAPTURES_REQUIRED) {
                         captureLoginFace();
                     }
                 } else {
+                    faceDetectedFrames = 0;
                     document.getElementById('loginFaceIndicator').classList.remove('active');
                     document.getElementById('loginStatusIcon').classList.remove('success');
                     document.getElementById('loginStatusText').textContent = 'Detecting Face...';
-                    window.loginFaceWasDetected = false;
                 }
 
                 requestAnimationFrame(detect);
@@ -657,12 +659,6 @@
         }
 
         function captureLoginFace() {
-            if (loginCaptureCount >= CAPTURES_REQUIRED) return;
-            
-            const now = Date.now();
-            if (now - lastLoginCaptureTime < CAPTURE_DELAY) return;
-            
-            lastLoginCaptureTime = now;
             loginCaptureCount++;
             console.log('Login face captured:', loginCaptureCount);
 
@@ -672,10 +668,8 @@
 
             // Update capture items
             const items = document.querySelectorAll('#loginCaptureItems .capture-item');
-            for (let i = 0; i < loginCaptureCount; i++) {
-                items[i].classList.remove('pending');
-                items[i].classList.add('done');
-            }
+            items[loginCaptureCount - 1].classList.remove('pending');
+            items[loginCaptureCount - 1].classList.add('done');
 
             // Show captures info
             document.getElementById('loginCapturesInfo').classList.add('show');
@@ -758,6 +752,7 @@
 
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
+            let faceDetectedFrames = 0;
 
             const detect = () => {
                 if (!video.srcObject) return;
@@ -789,23 +784,24 @@
                 
                 const avgBrightness = pixelCount > 0 ? totalBrightness / pixelCount : 0;
                 
-                // Face detected if average brightness is reasonable (not too dark, not too bright)
+                // Face detected if average brightness is reasonable
                 const faceDetected = avgBrightness > 40 && avgBrightness < 240;
 
                 if (faceDetected) {
+                    faceDetectedFrames++;
                     document.getElementById('logoutFaceIndicator').classList.add('active');
                     document.getElementById('logoutStatusIcon').classList.add('success');
-                    document.getElementById('logoutStatusText').textContent = 'Face Detected';
-
-                    if (!window.logoutFaceWasDetected) {
-                        window.logoutFaceWasDetected = true;
+                    document.getElementById('logoutStatusText').textContent = 'Face Detected (' + logoutCaptureCount + '/3)';
+                    
+                    // Capture every 30 frames (approximately 1 second at 30fps)
+                    if (faceDetectedFrames % 30 === 0 && logoutCaptureCount < CAPTURES_REQUIRED) {
                         captureLogoutFace();
                     }
                 } else {
+                    faceDetectedFrames = 0;
                     document.getElementById('logoutFaceIndicator').classList.remove('active');
                     document.getElementById('logoutStatusIcon').classList.remove('success');
                     document.getElementById('logoutStatusText').textContent = 'Detecting Face...';
-                    window.logoutFaceWasDetected = false;
                 }
 
                 requestAnimationFrame(detect);
@@ -815,12 +811,6 @@
         }
 
         function captureLogoutFace() {
-            if (logoutCaptureCount >= CAPTURES_REQUIRED) return;
-            
-            const now = Date.now();
-            if (now - lastLogoutCaptureTime < CAPTURE_DELAY) return;
-            
-            lastLogoutCaptureTime = now;
             logoutCaptureCount++;
             console.log('Logout face captured:', logoutCaptureCount);
 
@@ -830,10 +820,8 @@
 
             // Update capture items
             const items = document.querySelectorAll('#logoutCaptureItems .capture-item');
-            for (let i = 0; i < logoutCaptureCount; i++) {
-                items[i].classList.remove('pending');
-                items[i].classList.add('done');
-            }
+            items[logoutCaptureCount - 1].classList.remove('pending');
+            items[logoutCaptureCount - 1].classList.add('done');
 
             // Show captures info
             document.getElementById('logoutCapturesInfo').classList.add('show');

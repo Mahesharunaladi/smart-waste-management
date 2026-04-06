@@ -1,6 +1,4 @@
-// ===================================
-// Initialize AOS (Animate On Scroll)
-// ===================================
+
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof AOS !== 'undefined') {
         AOS.init({
@@ -11,9 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ===================================
-// Navigation Functions
-// ===================================
+
 function toggleMobileMenu() {
     const navMenu = document.getElementById('navMenu');
     navMenu.classList.toggle('active');
@@ -83,9 +79,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// ===================================
-// Counter Animation
-// ===================================
+
 function animateCounter(element) {
     const target = parseInt(element.getAttribute('data-target'));
     const duration = 2000;
@@ -137,9 +131,7 @@ if (statsBanner) {
     observer.observe(statsBanner);
 }
 
-// ===================================
-// Form Handlers
-// ===================================
+
 function handleContactSubmit(event) {
     event.preventDefault();
     
@@ -160,12 +152,7 @@ function handleContactSubmit(event) {
     // Reset form
     event.target.reset();
     
-    // In production, you would send this to your backend:
-    // fetch('/api/contact', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(formData)
-    // });
+   
 }
 
 function handleNewsletterSubmit(event) {
@@ -182,17 +169,10 @@ function handleNewsletterSubmit(event) {
     // Reset form
     event.target.reset();
     
-    // In production, you would send this to your backend:
-    // fetch('/api/newsletter', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ email })
-    // });
+   
 }
 
-// ===================================
-// Scroll Functions
-// ===================================
+
 function scrollToTop() {
     window.scrollTo({
         top: 0,
@@ -200,9 +180,7 @@ function scrollToTop() {
     });
 }
 
-// ===================================
-// Dynamic Content Loading (Optional)
-// ===================================
+
 function loadTestimonials() {
     // This could be loaded from an API in production
     const testimonials = [
@@ -232,9 +210,7 @@ function loadTestimonials() {
     return testimonials;
 }
 
-// ===================================
-// Hero Stats Animation
-// ===================================
+
 const heroStats = document.querySelectorAll('.hero-stat h3');
 if (heroStats.length > 0) {
     // Animate hero stats on page load
@@ -259,9 +235,7 @@ if (heroStats.length > 0) {
     }, 500);
 }
 
-// ===================================
-// Parallax Effect (Optional)
-// ===================================
+
 window.addEventListener('scroll', () => {
     const scrolled = window.pageYOffset;
     const parallaxElements = document.querySelectorAll('.hero-content');
@@ -272,16 +246,12 @@ window.addEventListener('scroll', () => {
     });
 });
 
-// ===================================
-// Loading Animation
-// ===================================
+
 window.addEventListener('load', () => {
     document.body.classList.add('loaded');
 });
 
-// ===================================
-// Feature Hover Effects
-// ===================================
+
 const featureCards = document.querySelectorAll('.feature-card, .service-card, .testimonial-card');
 featureCards.forEach(card => {
     card.addEventListener('mouseenter', function() {
@@ -289,9 +259,7 @@ featureCards.forEach(card => {
     });
 });
 
-// ===================================
-// Scroll Indicator
-// ===================================
+
 const scrollIndicator = document.querySelector('.scroll-indicator');
 if (scrollIndicator) {
     scrollIndicator.addEventListener('click', () => {
@@ -302,9 +270,7 @@ if (scrollIndicator) {
     });
 }
 
-// ===================================
-// Form Validation
-// ===================================
+
 function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
@@ -342,9 +308,7 @@ if (contactForm) {
     }
 }
 
-// ===================================
-// Service Cards Click Handler
-// ===================================
+
 const serviceLinks = document.querySelectorAll('.service-link');
 serviceLinks.forEach(link => {
     link.addEventListener('click', (e) => {
@@ -354,9 +318,7 @@ serviceLinks.forEach(link => {
     });
 });
 
-// ===================================
-// Lazy Loading Images
-// ===================================
+
 if ('IntersectionObserver' in window) {
     const imageObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
@@ -373,15 +335,11 @@ if ('IntersectionObserver' in window) {
     lazyImages.forEach(img => imageObserver.observe(img));
 }
 
-// ===================================
-// Print/Console Welcome Message
-// ===================================
+
 console.log('%c Welcome to SmartWaste Management System! ', 'background: linear-gradient(135deg, #10b981, #06b6d4); color: white; padding: 10px 20px; font-size: 16px; font-weight: bold;');
 console.log('%c Building a sustainable future, one collection at a time. ', 'color: #10b981; font-size: 14px;');
 
-// ===================================
-// Keyboard Navigation
-// ===================================
+
 document.addEventListener('keydown', (e) => {
     // ESC key closes mobile menu
     if (e.key === 'Escape') {
@@ -396,9 +354,7 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// ===================================
-// Browser Tab Visibility
-// ===================================
+
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         document.title = 'Come back! - SmartWaste';
@@ -407,9 +363,7 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// ===================================
-// Performance Monitoring (Optional)
-// ===================================
+
 if ('PerformanceObserver' in window) {
     const perfObserver = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
@@ -422,9 +376,7 @@ if ('PerformanceObserver' in window) {
     perfObserver.observe({ entryTypes: ['navigation'] });
 }
 
-// ===================================
-// Export functions for external use
-// ===================================
+
 window.smartWasteApp = {
     toggleMobileMenu,
     closeMobileMenu,

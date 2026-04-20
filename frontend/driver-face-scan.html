@@ -836,7 +836,7 @@
             }
         }
 
-        function completeLogoutScan() {
+        async function completeLogoutScan() {
             if (logoutCaptureCount < CAPTURES_REQUIRED) {
                 alert('Please complete all 3 face captures');
                 return;
@@ -845,13 +845,20 @@
             console.log('Logout scan completed');
             stopAllCameras();
 
-            // Mark logout attendance
-            markLogoutAttendance();
-
             // Show success message
             const successEl = document.getElementById('logoutSuccess');
-            document.getElementById('logoutSuccessText').textContent = 'Logout successful! Redirecting...';
+            document.getElementById('logoutSuccessText').textContent = 'Marking attendance...';
             successEl.classList.add('show');
+
+            // Mark logout attendance and wait for it to complete
+            console.log('Calling markLogoutAttendance()...');
+            const success = await markLogoutAttendance();
+            
+            if (success) {
+                document.getElementById('logoutSuccessText').textContent = 'Logout successful! Redirecting...';
+            } else {
+                document.getElementById('logoutSuccessText').textContent = 'Logout attendance failed. Please try again.';
+            }
 
             // Update session
             driverSession.logoutTime = new Date().toISOString();

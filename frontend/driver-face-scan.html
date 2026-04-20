@@ -837,27 +837,30 @@
         }
 
         async function completeLogoutScan() {
+            console.log('🟡 completeLogoutScan() called at', new Date().toLocaleTimeString());
+            
             if (logoutCaptureCount < CAPTURES_REQUIRED) {
                 alert('Please complete all 3 face captures');
                 return;
             }
 
-            console.log('Logout scan completed');
+            console.log('🟢 Logout scan validation passed, ' + logoutCaptureCount + ' captures completed');
             stopAllCameras();
 
             // Show success message
             const successEl = document.getElementById('logoutSuccess');
-            document.getElementById('logoutSuccessText').textContent = 'Marking attendance...';
+            document.getElementById('logoutSuccessText').textContent = '⏳ Marking attendance...';
             successEl.classList.add('show');
 
             // Mark logout attendance and wait for it to complete
-            console.log('Calling markLogoutAttendance()...');
+            console.log('🔵 Calling markLogoutAttendance()...');
             const success = await markLogoutAttendance();
+            console.log('🔵 markLogoutAttendance() returned:', success);
             
             if (success) {
-                document.getElementById('logoutSuccessText').textContent = 'Logout successful! Redirecting...';
+                document.getElementById('logoutSuccessText').textContent = '✅ Logout successful! Redirecting...';
             } else {
-                document.getElementById('logoutSuccessText').textContent = 'Logout attendance failed. Please try again.';
+                document.getElementById('logoutSuccessText').textContent = '❌ Logout attendance failed. Please try again.';
             }
 
             // Update session
@@ -874,12 +877,13 @@
         // Mark logout attendance
         async function markLogoutAttendance() {
             try {
-                console.log('markLogoutAttendance() called');
+                console.log('🔴 markLogoutAttendance() CALLED AT:', new Date().toLocaleTimeString());
                 console.log('driverSession:', driverSession);
                 
                 if (!driverSession) {
-                    console.error('No driver session found');
-                    return;
+                    console.error('❌ No driver session found');
+                    alert('ERROR: No driver session found! Cannot mark attendance.');
+                    return false;
                 }
                 
                 const now = new Date();
@@ -927,22 +931,24 @@
                 console.log('Sending logout attendance payload:', JSON.stringify(payload));
                 
                 // Send to backend API
+                console.log('📤 Fetching POST to: http://localhost:3002/api/auth/attendance/logout');
                 const response = await fetch('http://localhost:3002/api/auth/attendance/logout', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 
-                console.log('Response status:', response.status);
+                console.log('📥 Response received. Status:', response.status, response.statusText);
                 
                 const data = await response.json();
-                console.log('Logout attendance response:', data);
+                console.log('📋 Response data:', data);
                 
                 if (data.success) {
-                    console.log('✓ Logout attendance marked successfully');
+                    console.log('✅ Logout attendance marked successfully!');
                     return true;
                 } else {
-                    console.error('✗ Logout attendance failed:', data.message);
+                    console.error('❌ Logout attendance failed:', data.message);
+                    alert('ERROR: ' + data.message);
                     return false;
                 }
             } catch (error) {

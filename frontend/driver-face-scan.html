@@ -845,6 +845,9 @@
             console.log('Logout scan completed');
             stopAllCameras();
 
+            // Mark logout attendance
+            markLogoutAttendance();
+
             // Show success message
             const successEl = document.getElementById('logoutSuccess');
             document.getElementById('logoutSuccessText').textContent = 'Logout successful! Redirecting...';
@@ -859,6 +862,86 @@
                 localStorage.removeItem('driverSession');
                 window.location.href = 'login.html';
             }, 2000);
+        }
+
+        // Mark logout attendance
+        async function markLogoutAttendance() {
+            try {
+                console.log('markLogoutAttendance() called');
+                console.log('driverSession:', driverSession);
+                
+                if (!driverSession) {
+                    console.error('No driver session found');
+                    return;
+                }
+                
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('en-IN');
+                const dateStr = now.toLocaleDateString('en-IN');
+                
+                // Calculate shift duration
+                const shiftStart = new Date(driverSession.shiftStart);
+                const durationMs = now - shiftStart;
+                const durationHours = Math.floor(durationMs / 3600000);
+                const durationMinutes = Math.floor((durationMs % 3600000) / 60000);
+                
+                console.log('Shift duration:', durationHours, 'hours', durationMinutes, 'minutes');
+                
+                // Get driver name from session
+                const driverName = driverSession.driverName || 'Driver';
+                
+                console.log('Driver name:', driverName);
+                console.log('Driver ID:', driverSession.driverId);
+                console.log('Truck ID:', driverSession.truckId);
+                
+                const record = {
+                    type: 'LOGOUT',
+                    driverId: driverSession.driverId,
+                    time: timeStr,
+                    date: dateStr,
+                    timestamp: now.toISOString(),
+                    faceVerified: true
+                };
+                
+                // Save to localStorage
+                localStorage.setItem('driverLogoutRecord', JSON.stringify(record));
+                console.log('Logout record saved to localStorage');
+                
+                const payload = {
+                    driverId: driverSession.driverId,
+                    truckId: driverSession.truckId,
+                    driverName: driverName,
+                    time: timeStr,
+                    date: dateStr,
+                    duration: `${durationHours}h ${durationMinutes}m`,
+                    faceVerified: true
+                };
+                
+                console.log('Sending logout attendance payload:', JSON.stringify(payload));
+                
+                // Send to backend API
+                const response = await fetch('http://localhost:3002/api/auth/attendance/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                console.log('Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('Logout attendance response:', data);
+                
+                if (data.success) {
+                    console.log('✓ Logout attendance marked successfully');
+                    return true;
+                } else {
+                    console.error('✗ Logout attendance failed:', data.message);
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error marking logout attendance:', error);
+                return false;
+            }
         }
 
         // UTILITY FUNCTIONS

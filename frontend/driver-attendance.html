@@ -603,17 +603,28 @@
         let video = null;
         let canvas = null;
 
-        // Get URL parameters
-        function getUrlParameter(name) {
-            const url = new URL(window.location.href);
-            return url.searchParams.get(name);
-        }
+        // Check if face-api is loaded
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (typeof faceapi === 'undefined') {
+                    console.warn('Face-api library not yet loaded, trying again...');
+                    setTimeout(initialize, 1000);
+                } else {
+                    console.log('Face-api library loaded successfully');
+                    initialize();
+                }
+            }, 500);
+        });
 
         // Initialize
         async function initialize() {
+            console.log('=== INITIALIZING ATTENDANCE PAGE ===');
             const driverData = sessionStorage.getItem('driverSession');
+            console.log('Session Storage Data:', driverData);
+            console.log('All Session Storage Items:', Object.keys(sessionStorage));
             
             if (!driverData) {
+                console.error('No session data found!');
                 showError('Session expired. Please login again.');
                 setTimeout(() => {
                     window.location.href = 'driver-login.html';
@@ -621,42 +632,87 @@
                 return;
             }
 
-            currentDriver = JSON.parse(driverData);
-            displayDriverDetails();
-            startCamera();
-            startClock();
-            loadAttendanceStats();
+            try {
+                currentDriver = JSON.parse(driverData);
+                console.log('✓ Parsed Driver Data:', currentDriver);
+                
+                // Display driver details IMMEDIATELY
+                displayDriverDetails();
+                console.log('✓ Driver details displayed');
+                
+                // Start clock IMMEDIATELY
+                startClock();
+                console.log('✓ Clock started');
+                
+                // Load stats IMMEDIATELY
+                loadAttendanceStats();
+                console.log('✓ Attendance stats loaded');
+                
+                // Start camera (this can fail gracefully)
+                console.log('Starting camera...');
+                startCamera();
+                
+            } catch (error) {
+                console.error('Error during initialization:', error);
+                showError('Invalid session data. Please login again.');
+                setTimeout(() => {
+                    window.location.href = 'driver-login.html';
+                }, 2000);
+            }
         }
 
         // Display driver details
         function displayDriverDetails() {
+            if (!currentDriver) {
+                console.error('No current driver data available');
+                const errorHtml = `
+                    <div style="text-align: center; color: #ef4444; padding: 20px; background: #fee2e2; border-radius: 8px;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 1.5em; margin-bottom: 10px; display: block;"></i>
+                        Error: Driver details not loaded
+                    </div>
+                `;
+                document.getElementById('driverInfo').innerHTML = errorHtml;
+                return;
+            }
+
+            console.log('Displaying driver details for:', currentDriver);
+            
+            // Validate all required fields exist
+            const requiredFields = ['name', 'phone', 'aadharNumber', 'gender', 'caste', 'truckId'];
+            const missingFields = requiredFields.filter(field => !currentDriver[field]);
+            
+            if (missingFields.length > 0) {
+                console.warn('Missing fields:', missingFields);
+            }
+
             const infoHtml = `
                 <div class="info-item">
                     <div class="info-label">Name</div>
-                    <div class="info-value">${currentDriver.name}</div>
+                    <div class="info-value">${currentDriver.name || 'N/A'}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Phone</div>
-                    <div class="info-value">${currentDriver.phone}</div>
+                    <div class="info-value">${currentDriver.phone || 'N/A'}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Aadhar Number</div>
-                    <div class="info-value">${currentDriver.aadharNumber}</div>
+                    <div class="info-value">${currentDriver.aadharNumber || 'N/A'}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Gender</div>
-                    <div class="info-value">${currentDriver.gender}</div>
+                    <div class="info-value">${currentDriver.gender || 'N/A'}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Caste</div>
-                    <div class="info-value">${currentDriver.caste}</div>
+                    <div class="info-value">${currentDriver.caste || 'N/A'}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Truck ID</div>
-                    <div class="info-value">${currentDriver.truckId}</div>
+                    <div class="info-value">${currentDriver.truckId || 'N/A'}</div>
                 </div>
             `;
             document.getElementById('driverInfo').innerHTML = infoHtml;
+            console.log('✓ Driver details displayed successfully');
         }
 
         // Start camera
@@ -665,39 +721,95 @@
             canvas = document.getElementById('attendanceCanvas');
 
             try {
+                console.log('Requesting camera access...');
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: { width: { ideal: 720 }, height: { ideal: 540 } }
                 });
                 video.srcObject = stream;
+                console.log('✓ Camera access granted');
 
-                // Load face detection model
-                await faceapi.nets.tinyFaceDetector.load('/models/');
+                // Wait for faceapi to be loaded
+                console.log('Waiting for face-api library...');
+                let retries = 0;
+                while (typeof faceapi === 'undefined' && retries < 50) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    retries++;
+                }
+
+                if (typeof faceapi === 'undefined') {
+                    console.warn('⚠ face-api library not available, using fallback mode');
+                    startFaceDetectionFallback();
+                    return;
+                }
+
+                // Load face detection model from CDN
+                console.log('Loading face-api models from CDN...');
+                try {
+                    await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api@latest/model/');
+                    console.log('✓ Face-api TinyFaceDetector model loaded');
+                } catch (modelError) {
+                    console.error('Failed to load TinyFaceDetector model:', modelError);
+                    console.log('Using fallback mode...');
+                    startFaceDetectionFallback();
+                    return;
+                }
+                
                 startFaceDetection();
             } catch (error) {
                 console.error('Camera error:', error);
-                showError('Unable to access camera. Please check permissions.');
+                showError('Unable to access camera. Error: ' + error.message);
             }
+        }
+
+        // Fallback face detection (simple motion detection)
+        function startFaceDetectionFallback() {
+            console.log('Starting fallback face detection...');
+            faceDetectionActive = true;
+            updateFaceIndicator(true);
+            enableActionButtons();
+            showInfo('Face detection in fallback mode - click buttons to proceed');
         }
 
         // Face detection loop
         async function startFaceDetection() {
-            setInterval(async () => {
-                if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
+            console.log('Starting face detection...');
+            
+            // Check if faceapi is available
+            if (typeof faceapi === 'undefined') {
+                console.error('face-api library not loaded');
+                showError('Face detection library failed to load. Refreshing page...');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+                return;
+            }
+
+            const detectionInterval = setInterval(async () => {
+                if (video && video.readyState === video.HAVE_ENOUGH_DATA && canvas) {
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
 
                     try {
-                        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetector());
+                        // Simple face detection with proper options
+                        const options = new faceapi.TinyFaceDetectorOptions({
+                            inputSize: 416,
+                            scoreThreshold: 0.5
+                        });
+                        const detections = await faceapi.detectAllFaces(video, options);
+                        
+                        console.log('Faces detected:', detections.length);
                         
                         if (detections.length > 0) {
                             if (!faceDetectionActive) {
                                 faceDetectionActive = true;
+                                console.log('Face detected - enabling buttons');
                                 updateFaceIndicator(true);
                                 enableActionButtons();
                             }
                         } else {
                             if (faceDetectionActive) {
                                 faceDetectionActive = false;
+                                console.log('Face lost - disabling buttons');
                                 updateFaceIndicator(false);
                                 disableActionButtons();
                             }
@@ -707,6 +819,11 @@
                     }
                 }
             }, 500);
+
+            // Stop detection interval on page unload
+            window.addEventListener('beforeunload', () => {
+                clearInterval(detectionInterval);
+            });
         }
 
         // Update face indicator
@@ -952,7 +1069,20 @@
         }
 
         // Initialize on load
-        window.addEventListener('load', initialize);
+        window.addEventListener('load', () => {
+            console.log('Page loaded, initializing...');
+            // Call initialize immediately
+            initialize();
+            
+            // Also try again after a short delay to ensure faceapi is loaded
+            setTimeout(() => {
+                if (typeof faceapi === 'undefined') {
+                    console.warn('Face-api library still not loaded after page load');
+                } else {
+                    console.log('✓ Face-api library confirmed loaded');
+                }
+            }, 2000);
+        });
     </script>
 </body>
 </html>

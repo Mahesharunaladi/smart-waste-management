@@ -298,20 +298,26 @@
                     return;
                 }
 
-                // Save session
+                // Save session with complete driver data
                 driverSession = {
-                    driverId: driverId,
-                    truckId: truckId,
+                    id: data.driver.id,
+                    name: data.driver.name,
+                    truckId: data.driver.truckId,
+                    phone: data.driver.phone,
+                    aadharNumber: data.driver.aadharNumber,
+                    gender: data.driver.gender,
+                    caste: data.driver.caste,
+                    email: data.driver.email,
                     token: data.token,
                     timestamp: new Date()
                 };
 
-                localStorage.setItem('driverSession', JSON.stringify(driverSession));
-                showSuccess('Login successful! Redirecting to QR scan...');
+                sessionStorage.setItem('driverSession', JSON.stringify(driverSession));
+                showSuccess('Login successful! Redirecting to attendance...');
 
-                // Redirect to QR scanner after 1.5 seconds
+                // Redirect to attendance page
                 setTimeout(() => {
-                    window.location.href = 'driver-qr-scan.html';
+                    window.location.href = 'driver-attendance.html';
                 }, 1500);
 
             } catch (error) {
@@ -337,10 +343,10 @@
 
         // Check if already logged in
         window.addEventListener('load', () => {
-            const session = localStorage.getItem('driverSession');
+            const session = sessionStorage.getItem('driverSession');
             if (session) {
-                // Already logged in, redirect to QR scan
-                window.location.href = 'driver-qr-scan.html';
+                // Already logged in, redirect to attendance
+                window.location.href = 'driver-attendance.html';
             }
         });
     </script>

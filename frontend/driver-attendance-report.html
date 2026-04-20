@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Attendance Report - SmartWaste</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 0.95em;
+        }
+
+        .header h1 i {
+            color: #667eea;
+        }
+
+        .filters {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #6b7280;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-card .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h2 {
+            font-size: 1.2em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background: #f9fafb;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9em;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #4b5563;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-login {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-logout {
+            background: #fee2e2;
+            color: #7f1d1d;
+        }
+
+        .time-display {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .duration-display {
+            background: #ede9fe;
+            color: #6d28d9;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #9ca3af;
+        }
+
+        .no-data i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .export-button {
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .export-button:hover {
+            background: #059669;
+        }
+
+        .nav-bar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-bar a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s;
+        }
+
+        .nav-bar a:hover {
+            color: #764ba2;
+        }
+
+        .nav-bar .title {
+            color: #333;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        .info-box {
+            background: #ede9fe;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            color: #5b21b6;
+        }
+
+        .info-box i {
+            margin-right: 10px;
+        }
+
+        .date-range-display {
+            background: #f0f9ff;
+            border-left: 4px solid #0284c7;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            color: #0c4a6e;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.85em;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .loading i {
+            font-size: 3em;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <span class="title"><i class="fas fa-chart-bar"></i> Driver Attendance Report</span>
+            <a href="dashboard.html"><i class="fas fa-home"></i> Back to Dashboard</a>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-clock"></i> Driver Work Hours Report</h1>
+            <p>Track and monitor driver login/logout times and work duration</p>
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i>
+            <span>This report shows all driver attendance records including login time, logout time, and total work duration.</span>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label><i class="fas fa-user"></i> Driver ID</label>
+                <input type="text" id="filterDriverId" placeholder="e.g., D001" />
+            </div>
+            <div class="filter-group">
+                <label><i class="fas fa-calendar"></i> Start Date</label>
+                <input type="date" id="filterStartDate" />
+            </div>
+            <div class="filter-group">
+                <label><i class="fas fa-calendar"></i> End Date</label>
+                <input type="date" id="filterEndDate" />
+            </div>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="loadAttendanceData()">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <button class="btn btn-secondary" onclick="resetFilters()">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+                <button class="btn btn-secondary" onclick="exportToCSV()">
+                    <i class="fas fa-download"></i> Export
+                </button>
+            </div>
+        </div>
+
+        <!-- Date Range Display -->
+        <div class="date-range-display" id="dateRangeDisplay" style="display:none;">
+            Showing records for <strong id="dateRangeText"></strong>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="icon"><i class="fas fa-sign-in-alt"></i></div>
+                <h3>Total Check-ins</h3>
+                <div class="value" id="totalLoginCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon"><i class="fas fa-sign-out-alt"></i></div>
+                <h3>Total Check-outs</h3>
+                <div class="value" id="totalLogoutCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon"><i class="fas fa-users"></i></div>
+                <h3>Unique Drivers</h3>
+                <div class="value" id="uniqueDriverCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon"><i class="fas fa-hourglass-end"></i></div>
+                <h3>Avg Work Hours</h3>
+                <div class="value" id="avgWorkHours">0h</div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Attendance Records</h2>
+                <span id="recordCount">0 records</span>
+            </div>
+            <table id="attendanceTable">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-hashtag"></i> Date</th>
+                        <th><i class="fas fa-user"></i> Driver ID</th>
+                        <th><i class="fas fa-user-tag"></i> Driver Name</th>
+                        <th><i class="fas fa-truck"></i> Truck ID</th>
+                        <th><i class="fas fa-sign-in-alt"></i> Login Time</th>
+                        <th><i class="fas fa-sign-out-alt"></i> Logout Time</th>
+                        <th><i class="fas fa-clock"></i> Work Duration</th>
+                        <th><i class="fas fa-check"></i> Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="8" class="no-data">
+                            <i class="fas fa-inbox"></i>
+                            <p>No data available. Use filters and click Search to load records.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3002/api';
+
+        // Load today's date in date inputs
+        window.addEventListener('load', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('filterStartDate').value = today;
+            document.getElementById('filterEndDate').value = today;
+            
+            // Try to load today's data by default
+            loadAttendanceData();
+        });
+
+        // Format date to display format
+        function formatDateForDisplay(dateStr) {
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                const [day, month, year] = parts;
+                return new Date(year, month - 1, day).toLocaleDateString('en-IN', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+            return dateStr;
+        }
+
+        // Load attendance data from API
+        async function loadAttendanceData() {
+            try {
+                const driverId = document.getElementById('filterDriverId').value.trim() || 'D001';
+                const startDate = document.getElementById('filterStartDate').value;
+                const endDate = document.getElementById('filterEndDate').value;
+
+                if (!startDate || !endDate) {
+                    alert('Please select both start and end dates');
+                    return;
+                }
+
+                // Convert dates to DD/MM/YYYY format for API
+                const startDateObj = new Date(startDate);
+                const endDateObj = new Date(endDate);
+                
+                const startDateStr = `${String(startDateObj.getDate()).padStart(2, '0')}/${String(startDateObj.getMonth() + 1).padStart(2, '0')}/${startDateObj.getFullYear()}`;
+                const endDateStr = `${String(endDateObj.getDate()).padStart(2, '0')}/${String(endDateObj.getMonth() + 1).padStart(2, '0')}/${endDateObj.getFullYear()}`;
+
+                // Show loading state
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" class="loading"><i class="fas fa-spinner"></i><p>Loading attendance records...</p></td></tr>';
+
+                // Fetch attendance records
+                const response = await fetch(`${API_URL}/auth/attendance/${driverId}/${endDateStr.replace(/\//g, '%2F')}`);
+                const data = await response.json();
+
+                if (data.success && data.records) {
+                    displayAttendanceData(data.records, startDateStr, endDateStr);
+                    updateStatistics(data.records);
+                    updateDateRangeDisplay(startDate, endDate);
+                } else {
+                    document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" class="no-data"><i class="fas fa-inbox"></i><p>No attendance records found for the selected criteria.</p></td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading attendance data:', error);
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" class="no-data"><i class="fas fa-exclamation-circle"></i><p>Error loading data. Please check your connection and try again.</p></td></tr>';
+            }
+        }
+
+        // Display attendance data in table
+        function displayAttendanceData(records, startDate, endDate) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            // Group records by date and driver
+            const groupedData = {};
+            records.forEach(record => {
+                const key = `${record.date}_${record.driverId}`;
+                if (!groupedData[key]) {
+                    groupedData[key] = {
+                        date: record.date,
+                        driverId: record.driverId,
+                        driverName: record.driverName,
+                        truckId: record.truckId,
+                        loginTime: null,
+                        logoutTime: null,
+                        duration: null
+                    };
+                }
+                
+                if (record.type === 'LOGIN') {
+                    groupedData[key].loginTime = record.time;
+                } else if (record.type === 'LOGOUT') {
+                    groupedData[key].logoutTime = record.time;
+                    groupedData[key].duration = record.duration;
+                }
+            });
+
+            // Display grouped data
+            Object.values(groupedData).forEach(item => {
+                const row = document.createElement('tr');
+                
+                const loginStatus = item.loginTime ? '<span class="status-badge status-login"><i class="fas fa-check"></i> Present</span>' : '<span style="color: #999;">-</span>';
+                const logoutStatus = item.logoutTime ? '<span class="status-badge status-logout"><i class="fas fa-check"></i> Closed</span>' : '<span style="color: #999;">-</span>';
+                const finalStatus = item.logoutTime ? logoutStatus : loginStatus;
+                
+                row.innerHTML = `
+                    <td><strong>${formatDateForDisplay(item.date)}</strong></td>
+                    <td><code>${item.driverId}</code></td>
+                    <td>${item.driverName || 'N/A'}</td>
+                    <td><code>${item.truckId}</code></td>
+                    <td>
+                        ${item.loginTime ? `<span class="time-display"><i class="fas fa-sign-in-alt"></i> ${item.loginTime}</span>` : '<span style="color: #999;">-</span>'}
+                    </td>
+                    <td>
+                        ${item.logoutTime ? `<span class="time-display"><i class="fas fa-sign-out-alt"></i> ${item.logoutTime}</span>` : '<span style="color: #999;">-</span>'}
+                    </td>
+                    <td>
+                        ${item.duration ? `<span class="duration-display"><i class="fas fa-hourglass-end"></i> ${item.duration}</span>` : '<span style="color: #999;">In Progress</span>'}
+                    </td>
+                    <td>${finalStatus}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+
+            // Update record count
+            document.getElementById('recordCount').textContent = `${Object.keys(groupedData).length} record${Object.keys(groupedData).length !== 1 ? 's' : ''}`;
+        }
+
+        // Update statistics
+        function updateStatistics(records) {
+            const loginCount = records.filter(r => r.type === 'LOGIN').length;
+            const logoutCount = records.filter(r => r.type === 'LOGOUT').length;
+            const uniqueDrivers = new Set(records.map(r => r.driverId)).size;
+
+            // Calculate average work hours
+            let totalMinutes = 0;
+            const durations = records
+                .filter(r => r.type === 'LOGOUT' && r.duration)
+                .map(r => r.duration);
+
+            durations.forEach(duration => {
+                const match = duration.match(/(\d+)h\s*(\d+)m/);
+                if (match) {
+                    totalMinutes += parseInt(match[1]) * 60 + parseInt(match[2]);
+                }
+            });
+
+            const avgMinutes = durations.length > 0 ? Math.round(totalMinutes / durations.length) : 0;
+            const avgHours = Math.floor(avgMinutes / 60);
+            const avgMins = avgMinutes % 60;
+
+            document.getElementById('totalLoginCount').textContent = loginCount;
+            document.getElementById('totalLogoutCount').textContent = logoutCount;
+            document.getElementById('uniqueDriverCount').textContent = uniqueDrivers;
+            document.getElementById('avgWorkHours').textContent = avgHours > 0 ? `${avgHours}h ${avgMins}m` : '-';
+        }
+
+        // Update date range display
+        function updateDateRangeDisplay(startDate, endDate) {
+            const startDateObj = new Date(startDate);
+            const endDateObj = new Date(endDate);
+            
+            const startStr = startDateObj.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+            const endStr = endDateObj.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+            
+            document.getElementById('dateRangeText').textContent = `${startStr} to ${endStr}`;
+            document.getElementById('dateRangeDisplay').style.display = 'block';
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('filterDriverId').value = '';
+            document.getElementById('filterStartDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('filterEndDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" class="no-data"><i class="fas fa-inbox"></i><p>No data available.</p></td></tr>';
+            document.getElementById('dateRangeDisplay').style.display = 'none';
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            const driverId = document.getElementById('filterDriverId').value || 'All Drivers';
+            const startDate = document.getElementById('filterStartDate').value;
+            const endDate = document.getElementById('filterEndDate').value;
+
+            const table = document.getElementById('attendanceTable');
+            let csv = 'data:text/csv;charset=utf-8,';
+            
+            // Add header
+            csv += 'Driver Attendance Report\n';
+            csv += `Driver ID: ${driverId}\n`;
+            csv += `Date Range: ${startDate} to ${endDate}\n`;
+            csv += `Generated: ${new Date().toLocaleString()}\n\n`;
+            
+            // Add table headers
+            const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+            csv += headers.join(',') + '\n';
+            
+            // Add table data
+            Array.from(table.querySelectorAll('tbody tr')).forEach(row => {
+                const cells = Array.from(row.querySelectorAll('td')).map(td => {
+                    let text = td.textContent.trim();
+                    // Escape quotes and wrap in quotes if contains comma
+                    if (text.includes(',')) {
+                        text = `"${text.replace(/"/g, '""')}"`;
+                    }
+                    return text;
+                });
+                csv += cells.join(',') + '\n';
+            });
+
+            const encodedUri = encodeURI(csv);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `attendance_report_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

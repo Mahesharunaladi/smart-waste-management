@@ -276,43 +276,6 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-
-        /* Tabs styling */
-        .login-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #e5e7eb;
-        }
-
-        .login-tab {
-            padding: 12px 20px;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            color: #6b7280;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.95em;
-        }
-
-        .login-tab.active {
-            border-bottom-color: #10b981;
-            color: #10b981;
-        }
-
-        .login-tab:hover {
-            color: #10b981;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -320,246 +283,80 @@
         <div class="login-left">
             <i class="fas fa-recycle"></i>
             <h1>Smart Waste Management</h1>
-            <p>Monitor waste collection, track garbage trucks, manage driver authentication, and manage household profiles efficiently with our comprehensive management system.</p>
+            <p>Monitor waste collection, track garbage trucks, and manage household profiles efficiently with our comprehensive management system.</p>
         </div>
 
         <div class="login-right">
             <div class="login-header">
-                <h2>Login</h2>
-                <p>Choose your login type below</p>
-            </div>
-
-            <!-- Login Tabs -->
-            <div class="login-tabs">
-                <button class="login-tab active" onclick="switchTab('admin')">
-                    <i class="fas fa-user-shield"></i> Admin
-                </button>
-                <button class="login-tab" onclick="switchTab('driver')">
-                    <i class="fas fa-user-tie"></i> Driver
-                </button>
+                <h2>Admin Login</h2>
+                <p>Enter your credentials to access the dashboard</p>
             </div>
 
             <div id="alert" class="alert"></div>
 
-            <!-- Admin Login Tab -->
-            <div id="adminTab" class="tab-content active">
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="adminId">
-                            <i class="fas fa-id-card"></i> Admin ID
-                        </label>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="adminId">
+                        <i class="fas fa-id-card"></i> Admin ID
+                    </label>
+                    <input 
+                        type="text" 
+                        id="adminId" 
+                        class="form-input" 
+                        placeholder="e.g., ADMIN001"
+                        required
+                        autocomplete="username"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i> Password
+                    </label>
+                    <div class="password-container">
                         <input 
-                            type="text" 
-                            id="adminId" 
+                            type="password" 
+                            id="password" 
                             class="form-input" 
-                            placeholder="e.g., ADMIN001"
+                            placeholder="Enter your password"
                             required
-                            autocomplete="username"
+                            autocomplete="current-password"
                         >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password">
-                            <i class="fas fa-lock"></i> Password
-                        </label>
-                        <div class="password-container">
-                            <input 
-                                type="password" 
-                                id="password" 
-                                class="form-input" 
-                                placeholder="Enter your password"
-                                required
-                                autocomplete="current-password"
-                            >
-                            <i class="fas fa-eye toggle-password" id="togglePassword"></i>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="login-btn" id="loginBtn">
-                        <span id="btnText">Login</span>
-                        <span id="btnLoader" class="loading" style="display: none;"></span>
-                    </button>
-                </form>
-
-                <div class="admin-cards">
-                    <h3>Demo Admin Accounts</h3>
-                    
-                    <div class="admin-card" onclick="fillAdminCredentials('ADMIN001', 'admin123')">
-                        <h4><i class="fas fa-user-shield"></i> Super Administrator</h4>
-                        <p>ID: ADMIN001 | Password: admin123</p>
-                        <span class="badge">Full Access</span>
-                    </div>
-
-                    <div class="admin-card" onclick="fillAdminCredentials('ADMIN002', 'ops123')">
-                        <h4><i class="fas fa-users-cog"></i> Operations Manager</h4>
-                        <p>ID: ADMIN002 | Password: ops123</p>
-                        <span class="badge">Operations</span>
-                    </div>
-
-                    <div class="admin-card" onclick="fillAdminCredentials('ADMIN003', 'analytics123')">
-                        <h4><i class="fas fa-chart-line"></i> Analytics Manager</h4>
-                        <p>ID: ADMIN003 | Password: analytics123</p>
-                        <span class="badge">Analytics</span>
-                    </div>
-
-                    <div class="admin-card" onclick="fillAdminCredentials('ADMIN004', 'fleet123')">
-                        <h4><i class="fas fa-truck"></i> Fleet Manager</h4>
-                        <p>ID: ADMIN004 | Password: fleet123</p>
-                        <span class="badge">Fleet</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Driver Login Tab -->
-            <div id="driverTab" class="tab-content">
-                <!-- Driver Login Form (shown before login) -->
-                <div id="driverLoginSection" style="display: block;">
-                    <form id="driverLoginForm">
-                        <div class="form-group">
-                            <label for="driverId">
-                                <i class="fas fa-id-card"></i> Driver ID
-                            </label>
-                            <input 
-                                type="text" 
-                                id="driverId" 
-                                class="form-input" 
-                                placeholder="e.g., D001"
-                                required
-                            >
-                        </div>
-
-                        <div class="form-group">
-                            <label for="truckId">
-                                <i class="fas fa-truck"></i> Truck ID
-                            </label>
-                            <input 
-                                type="text" 
-                                id="truckId" 
-                                class="form-input" 
-                                placeholder="e.g., T001"
-                                required
-                            >
-                        </div>
-
-                        <div class="form-group">
-                            <label for="driverPassword">
-                                <i class="fas fa-lock"></i> Password
-                            </label>
-                            <div class="password-container">
-                                <input 
-                                    type="password" 
-                                    id="driverPassword" 
-                                    class="form-input" 
-                                    placeholder="Enter your password"
-                                    required
-                                >
-                                <i class="fas fa-eye toggle-driver-password" id="toggleDriverPassword"></i>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="login-btn" id="driverLoginBtn">
-                            <span id="driverBtnText">Login</span>
-                            <span id="driverBtnLoader" class="loading" style="display: none;"></span>
-                        </button>
-                    </form>
-
-                    <div class="admin-cards">
-                        <h3>Demo Driver Accounts</h3>
-                        
-                        <div class="admin-card" onclick="fillDriverCredentials('D001', 'T001', 'driver123')">
-                            <h4><i class="fas fa-user-tie"></i> Ramesh Kumar</h4>
-                            <p>ID: D001 | Truck: T001 | Password: driver123</p>
-                            <span class="badge">Active</span>
-                        </div>
-
-                        <div class="admin-card" onclick="fillDriverCredentials('D002', 'T002', 'driver123')">
-                            <h4><i class="fas fa-user-tie"></i> Ravi Singh</h4>
-                            <p>ID: D002 | Truck: T002 | Password: driver123</p>
-                            <span class="badge">Active</span>
-                        </div>
-
-                        <div class="admin-card" onclick="fillDriverCredentials('D003', 'T003', 'driver123')">
-                            <h4><i class="fas fa-user-tie"></i> Yallappa</h4>
-                            <p>ID: D003 | Truck: T003 | Password: driver123</p>
-                            <span class="badge">Active</span>
-                        </div>
-
-                        <div class="admin-card" onclick="fillDriverCredentials('D004', 'T004', 'driver123')">
-                            <h4><i class="fas fa-user-tie"></i> Pradeep Kumar</h4>
-                            <p>ID: D004 | Truck: T004 | Password: driver123</p>
-                            <span class="badge">Active</span>
-                        </div>
+                        <i class="fas fa-eye toggle-password" id="togglePassword"></i>
                     </div>
                 </div>
 
-                <!-- Driver Attendance Section (shown after login) -->
-                <div id="driverAttendanceSection" style="display: none;">
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <p style="font-size: 1.2em; color: #374151; margin: 0;">Welcome, <strong id="driverNameDisplay"></strong>!</p>
-                        <button type="button" class="login-btn" style="background: #ef4444; margin-top: 10px;" onclick="logoutDriver()">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </button>
-                    </div>
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <span id="btnText">Login</span>
+                    <span id="btnLoader" class="loading" style="display: none;"></span>
+                </button>
+            </form>
 
-                    <div style="background: #f0fdf4; padding: 12px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #10b981;">
-                        <div id="attendanceStatus" style="font-weight: 600; color: #10b981;">Status: Not Marked Today</div>
-                    </div>
+            <div class="admin-cards">
+                <h3>Demo Admin Accounts</h3>
+                
+                <div class="admin-card" onclick="fillCredentials('ADMIN001', 'admin123')">
+                    <h4><i class="fas fa-user-shield"></i> Super Administrator</h4>
+                    <p>ID: ADMIN001 | Password: admin123</p>
+                    <span class="badge">Full Access</span>
+                </div>
 
-                    <!-- Camera Section -->
-                    <div style="background: #000; border-radius: 10px; overflow: hidden; margin-bottom: 20px; position: relative;">
-                        <video id="driverVideo" autoplay playsinline muted style="width: 100%; height: auto; display: block;"></video>
-                        <div id="faceStatusBadge" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 8px 12px; border-radius: 20px; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444; animation: pulse 1s infinite;"></div>
-                            <span id="faceStatusText">Detecting...</span>
-                        </div>
-                    </div>
+                <div class="admin-card" onclick="fillCredentials('ADMIN002', 'ops123')">
+                    <h4><i class="fas fa-users-cog"></i> Operations Manager</h4>
+                    <p>ID: ADMIN002 | Password: ops123</p>
+                    <span class="badge">Operations</span>
+                </div>
 
-                    <!-- Driver Info -->
-                    <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
-                        <h4 style="margin: 0 0 12px 0; color: #374151;">Driver Details</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                            <div>
-                                <div style="font-size: 0.85em; color: #6b7280; margin-bottom: 4px;">Name</div>
-                                <div style="font-weight: 600; color: #1f2937;" id="driverInfoName">-</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.85em; color: #6b7280; margin-bottom: 4px;">Phone</div>
-                                <div style="font-weight: 600; color: #1f2937;" id="driverInfoPhone">-</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.85em; color: #6b7280; margin-bottom: 4px;">Aadhar</div>
-                                <div style="font-weight: 600; color: #1f2937;" id="driverInfoAadhar">-</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.85em; color: #6b7280; margin-bottom: 4px;">Gender</div>
-                                <div style="font-weight: 600; color: #1f2937;" id="driverInfoGender">-</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.85em; color: #6b7280; margin-bottom: 4px;">Caste</div>
-                                <div style="font-weight: 600; color: #1f2937;" id="driverInfoCaste">-</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.85em; color: #6b7280; margin-bottom: 4px;">Truck</div>
-                                <div style="font-weight: 600; color: #1f2937;" id="driverInfoTruck">-</div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="admin-card" onclick="fillCredentials('ADMIN003', 'analytics123')">
+                    <h4><i class="fas fa-chart-line"></i> Analytics Manager</h4>
+                    <p>ID: ADMIN003 | Password: analytics123</p>
+                    <span class="badge">Analytics</span>
+                </div>
 
-                    <!-- Time Display -->
-                    <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
-                        <div id="driverTime" style="font-size: 1.8em; font-weight: bold; font-family: 'Courier New', monospace;">--:--:--</div>
-                        <div id="driverDate" style="font-size: 0.9em; opacity: 0.9;">Loading...</div>
-                    </div>
-
-                    <!-- Attendance Buttons -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                        <button type="button" class="login-btn" style="background: #10b981; margin: 0;" id="driverLoginBtn2" disabled onclick="markDriverLogin()">
-                            <i class="fas fa-sign-in-alt"></i> Login
-                        </button>
-                        <button type="button" class="login-btn" style="background: #ef4444; margin: 0;" id="driverLogoutBtn" disabled onclick="markDriverLogout()">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </button>
-                    </div>
+                <div class="admin-card" onclick="fillCredentials('ADMIN004', 'fleet123')">
+                    <h4><i class="fas fa-truck"></i> Fleet Manager</h4>
+                    <p>ID: ADMIN004 | Password: fleet123</p>
+                    <span class="badge">Fleet</span>
                 </div>
             </div>
         </div>
@@ -568,24 +365,7 @@
     <script>
         const API_URL = 'http://localhost:3002/api';
 
-        // Switch between admin and driver tabs
-        function switchTab(tab) {
-            // Hide all tabs
-            document.getElementById('adminTab').classList.remove('active');
-            document.getElementById('driverTab').classList.remove('active');
-            
-            // Remove active class from all buttons
-            document.querySelectorAll('.login-tab').forEach(btn => btn.classList.remove('active'));
-            
-            // Show selected tab
-            document.getElementById(tab + 'Tab').classList.add('active');
-            event.target.closest('.login-tab').classList.add('active');
-            
-            // Clear alert
-            document.getElementById('alert').classList.remove('show');
-        }
-
-        // Toggle admin password visibility
+        // Toggle password visibility
         document.getElementById('togglePassword').addEventListener('click', function() {
             const passwordInput = document.getElementById('password');
             const type = passwordInput.type === 'password' ? 'text' : 'password';
@@ -594,26 +374,10 @@
             this.classList.toggle('fa-eye-slash');
         });
 
-        // Toggle driver password visibility
-        document.getElementById('toggleDriverPassword').addEventListener('click', function() {
-            const passwordInput = document.getElementById('driverPassword');
-            const type = passwordInput.type === 'password' ? 'text' : 'password';
-            passwordInput.type = type;
-            this.classList.toggle('fa-eye');
-            this.classList.toggle('fa-eye-slash');
-        });
-
-        // Fill admin credentials helper
-        function fillAdminCredentials(adminId, password) {
+        // Fill credentials helper
+        function fillCredentials(adminId, password) {
             document.getElementById('adminId').value = adminId;
             document.getElementById('password').value = password;
-        }
-
-        // Fill driver credentials helper
-        function fillDriverCredentials(driverId, truckId, password) {
-            document.getElementById('driverId').value = driverId;
-            document.getElementById('truckId').value = truckId;
-            document.getElementById('driverPassword').value = password;
         }
 
         // Show alert
@@ -627,7 +391,7 @@
             }, 5000);
         }
 
-        // ===== ADMIN LOGIN HANDLER =====
+        // Login form submission
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -669,7 +433,7 @@
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                showAlert('Unable to connect to server. Please make sure the backend is running on port 3002.');
+                showAlert('Unable to connect to server. Please make sure the backend is running on port 5000.');
             } finally {
                 // Re-enable button
                 loginBtn.disabled = false;
@@ -677,268 +441,12 @@
                 btnLoader.style.display = 'none';
             }
         });
-
-        // ===== DRIVER LOGIN HANDLER =====
-        let currentDriver = null;
-        let driverFaceDetected = false;
-        let driverVideo = null;
-
-        document.getElementById('driverLoginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const driverId = document.getElementById('driverId').value.trim();
-            const truckId = document.getElementById('truckId').value.trim();
-            const password = document.getElementById('driverPassword').value;
-            const loginBtn = document.getElementById('driverLoginBtn');
-            const btnText = document.getElementById('driverBtnText');
-            const btnLoader = document.getElementById('driverBtnLoader');
-
-            // Disable button and show loading
-            loginBtn.disabled = true;
-            btnText.style.display = 'none';
-            btnLoader.style.display = 'inline-block';
-
-            try {
-                const response = await fetch(`${API_URL}/auth/driver-login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ driverId, truckId, password })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Save driver data
-                    currentDriver = data.driver;
-                    
-                    // Save driver session to localStorage for face-scan page
-                    const driverSession = {
-                        driverId: currentDriver.id,
-                        driverName: currentDriver.name,
-                        truckId: currentDriver.truckId,
-                        shiftStart: new Date().toISOString(),
-                        faceVerified: true
-                    };
-                    localStorage.setItem('driverSession', JSON.stringify(driverSession));
-                    
-                    // Show attendance section
-                    document.getElementById('driverLoginSection').style.display = 'none';
-                    document.getElementById('driverAttendanceSection').style.display = 'block';
-                    document.getElementById('driverNameDisplay').textContent = currentDriver.name;
-
-                    // Display driver details
-                    document.getElementById('driverInfoName').textContent = currentDriver.name;
-                    document.getElementById('driverInfoPhone').textContent = currentDriver.phone;
-                    document.getElementById('driverInfoAadhar').textContent = currentDriver.aadharNumber;
-                    document.getElementById('driverInfoGender').textContent = currentDriver.gender;
-                    document.getElementById('driverInfoCaste').textContent = currentDriver.caste;
-                    document.getElementById('driverInfoTruck').textContent = currentDriver.truckId;
-
-                    // Start camera and face detection
-                    startDriverCamera();
-                    startDriverClock();
-
-                    showAlert('✓ Login successful!', 'success');
-                } else {
-                    showAlert(data.message || 'Driver login failed. Please check your credentials.');
-                }
-            } catch (error) {
-                console.error('Driver login error:', error);
-                showAlert('Unable to connect to server. Please make sure the backend is running on port 3002.');
-            } finally {
-                // Re-enable button
-                loginBtn.disabled = false;
-                btnText.style.display = 'inline';
-                btnLoader.style.display = 'none';
-            }
-        });
-
-        // Start camera for driver
-        async function startDriverCamera() {
-            driverVideo = document.getElementById('driverVideo');
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { width: { ideal: 720 }, height: { ideal: 540 } }
-                });
-                driverVideo.srcObject = stream;
-
-                // Wait for faceapi
-                let retries = 0;
-                while (typeof faceapi === 'undefined' && retries < 50) {
-                    await new Promise(r => setTimeout(r, 100));
-                    retries++;
-                }
-
-                if (typeof faceapi !== 'undefined') {
-                    await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api@latest/model/');
-                    startDriverFaceDetection();
-                } else {
-                    driverFaceDetected = true;
-                    updateDriverFaceStatus(true);
-                }
-            } catch (error) {
-                console.error('Camera error:', error);
-                alert('Cannot access camera. Please check permissions.');
-                driverFaceDetected = true;
-                updateDriverFaceStatus(true);
-            }
-        }
-
-        // Face detection for driver
-        async function startDriverFaceDetection() {
-            setInterval(async () => {
-                if (!driverVideo || driverVideo.readyState !== driverVideo.HAVE_ENOUGH_DATA) return;
-
-                try {
-                    const options = new faceapi.TinyFaceDetectorOptions({
-                        inputSize: 416,
-                        scoreThreshold: 0.5
-                    });
-                    const detections = await faceapi.detectAllFaces(driverVideo, options);
-
-                    const detected = detections.length > 0;
-                    if (detected !== driverFaceDetected) {
-                        driverFaceDetected = detected;
-                        updateDriverFaceStatus(detected);
-                    }
-                } catch (error) {
-                    console.error('Detection error:', error);
-                }
-            }, 500);
-        }
-
-        // Update face status for driver
-        function updateDriverFaceStatus(detected) {
-            const badge = document.getElementById('faceStatusBadge');
-            const dot = badge.querySelector('div');
-            const text = document.getElementById('faceStatusText');
-
-            if (detected) {
-                badge.style.background = 'rgba(16, 185, 129, 0.8)';
-                dot.style.background = '#10b981';
-                text.textContent = 'Face Detected ✓';
-                document.getElementById('driverLoginBtn2').disabled = false;
-                document.getElementById('driverLogoutBtn').disabled = false;
-            } else {
-                badge.style.background = 'rgba(0,0,0,0.7)';
-                dot.style.background = '#ef4444';
-                text.textContent = 'Detecting...';
-                document.getElementById('driverLoginBtn2').disabled = true;
-                document.getElementById('driverLogoutBtn').disabled = true;
-            }
-        }
-
-        // Start clock for driver
-        function startDriverClock() {
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById('driverTime').textContent = now.toLocaleTimeString('en-IN');
-                document.getElementById('driverDate').textContent = now.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            }, 1000);
-        }
-
-        // Mark driver login attendance
-        function markDriverLogin() {
-            if (!currentDriver) return;
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-IN');
-            const dateStr = now.toLocaleDateString('en-IN');
-            
-            const record = {
-                type: 'LOGIN',
-                driverId: currentDriver.id,
-                time: timeStr,
-                date: dateStr,
-                timestamp: now.toISOString()
-            };
-            
-            // Save to localStorage
-            localStorage.setItem('driverLoginRecord', JSON.stringify(record));
-            
-            // Send to backend API
-            fetch(`${API_URL}/auth/attendance/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    driverId: currentDriver.id,
-                    truckId: currentDriver.truckId,
-                    driverName: currentDriver.name,
-                    time: timeStr,
-                    date: dateStr,
-                    faceVerified: true
-                })
-            }).then(res => res.json())
-              .then(data => {
-                  console.log('Login attendance recorded:', data);
-              })
-              .catch(err => console.error('Error marking login attendance:', err));
-            
-            document.getElementById('attendanceStatus').innerHTML = `✅ Login marked successfully at ${timeStr}`;
-            document.getElementById('attendanceStatus').style.background = '#d1fae5';
-            document.getElementById('attendanceStatus').style.borderColor = '#10b981';
-            document.getElementById('driverLoginBtn2').disabled = true;
-            document.getElementById('driverLoginBtn2').textContent = '✅ Marked';
-            
-            // Redirect to driver dashboard after 2 seconds
-            setTimeout(() => {
-                window.location.href = 'http://localhost:3000/driver-dashboard.html';
-            }, 2000);
-        }
-
-        // Mark driver logout attendance
-        function markDriverLogout() {
-            if (!currentDriver) return;
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-IN');
-            const record = {
-                type: 'LOGOUT',
-                driverId: currentDriver.id,
-                time: timeStr,
-                date: now.toLocaleDateString('en-IN'),
-                timestamp: now.toISOString()
-            };
-            localStorage.setItem('driverLogoutRecord', JSON.stringify(record));
-            document.getElementById('attendanceStatus').innerHTML = `✅ Logout marked successfully at ${timeStr}`;
-            document.getElementById('attendanceStatus').style.background = '#fee2e2';
-            document.getElementById('attendanceStatus').style.borderColor = '#ef4444';
-            document.getElementById('driverLogoutBtn').disabled = true;
-            document.getElementById('driverLogoutBtn').textContent = '✅ Marked';
-            
-            // Redirect to driver dashboard after 2 seconds
-            setTimeout(() => {
-                window.location.href = 'http://localhost:3000/driver-dashboard.html';
-            }, 2000);
-        }
-
-        // Logout driver
-        function logoutDriver() {
-            if (confirm('Are you sure you want to logout?')) {
-                currentDriver = null;
-                driverFaceDetected = false;
-                document.getElementById('driverLoginSection').style.display = 'block';
-                document.getElementById('driverAttendanceSection').style.display = 'none';
-                document.getElementById('driverLoginForm').reset();
-                
-                // Reset buttons
-                document.getElementById('driverLoginBtn2').disabled = true;
-                document.getElementById('driverLoginBtn2').textContent = '🟢 Login';
-                document.getElementById('driverLogoutBtn').disabled = true;
-                document.getElementById('driverLogoutBtn').textContent = '🔴 Logout';
-                document.getElementById('attendanceStatus').innerHTML = 'Status: Not Marked Today';
-                document.getElementById('attendanceStatus').style.background = '#f0fdf4';
-                document.getElementById('attendanceStatus').style.borderColor = 'transparent';
-            }
-        }
 
         // Check if already logged in
         window.addEventListener('load', () => {
             const token = localStorage.getItem('token');
-            const driverSession = localStorage.getItem('driverSession');
-            
             if (token) {
-                // Check admin token
+                // Verify token is still valid
                 fetch(`${API_URL}/auth/me`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -955,9 +463,6 @@
                     localStorage.removeItem('token');
                     localStorage.removeItem('admin');
                 });
-            } else if (driverSession) {
-                // Already logged in as driver
-                window.location.href = 'http://localhost:3000/driver-dashboard.html';
             }
         });
     </script>
